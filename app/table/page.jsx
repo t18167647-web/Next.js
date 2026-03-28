@@ -7,91 +7,113 @@ export default function TablePage() {
   const [data, setData] = useState([]);
   const [index, setIndex] = useState(0);
 
-  const selectedPlayer = playersList[index];
+  const player = playersList[index];
 
-  useEffect(() => {
+  useEffect(()=>{
     const saved = localStorage.getItem("pitchData");
-    if (saved) setData(JSON.parse(saved));
-  }, []);
+    if(saved) setData(JSON.parse(saved));
+  },[]);
 
   const today = new Date().toISOString().split("T")[0];
 
   const filtered = data
-    .map((d,i)=>({...d, originalIndex:i}))
-    .filter(d => d.player===selectedPlayer)
+    .map((d,i)=>({...d,i}))
+    .filter(d=>d.player===player)
     .sort((a,b)=>new Date(b.date)-new Date(a.date));
 
   const hasToday = filtered.some(d=>d.date===today);
 
-  const getWeekly = ()=>{
-    const now=new Date();
-    const weekAgo=new Date();
-    weekAgo.setDate(now.getDate()-7);
-
-    return filtered
-      .filter(d=>new Date(d.date)>=weekAgo)
-      .reduce((sum,d)=>sum+d.pitches,0);
-  };
-
-  const deleteData = (i)=>{
+  const del = (i)=>{
     const newData=[...data];
     newData.splice(i,1);
     setData(newData);
-    localStorage.setItem("pitchData", JSON.stringify(newData));
+    localStorage.setItem("pitchData",JSON.stringify(newData));
   };
 
   return (
-    <div style={{ padding:20, maxWidth:500, margin:"0 auto" }}>
-      <h1 style={{ textAlign:"center" }}>結果</h1>
+    <div style={bg}>
+      <div style={container}>
+        <h1 style={{textAlign:"center"}}>📊 結果</h1>
 
-      {/* 切り替え */}
-      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
-        <button onClick={()=>setIndex(index===0?4:index-1)}>←</button>
-        <b>{selectedPlayer}</b>
-        <button onClick={()=>setIndex((index+1)%5)}>→</button>
-      </div>
-
-      {!hasToday && (
-        <div style={{ background:"#fff3cd", padding:10, borderRadius:10 }}>
-          ⚠ 今日未入力
+        <div style={switchBox}>
+          <button onClick={()=>setIndex(index===0?4:index-1)}>←</button>
+          <b>{player}</b>
+          <button onClick={()=>setIndex((index+1)%5)}>→</button>
         </div>
-      )}
 
-      <div style={{ background:"#eee", padding:10, borderRadius:10, margin:"10px 0" }}>
-        1週間：{getWeekly()}球
-      </div>
+        {!hasToday && (
+          <div style={warn}>⚠ 今日未入力</div>
+        )}
 
-      {filtered.map((d,i)=>(
-        <div key={i} style={{
-          background: (d.shoulder==="×"||d.elbow==="×") ? "#ffe5e5":"#f9f9f9",
-          padding:10, borderRadius:10, marginBottom:10
-        }}>
-          <button onClick={()=>deleteData(d.originalIndex)}
-            style={{ float:"right", background:"red", color:"white" }}>
-            削除
-          </button>
+        {filtered.map(d=>(
+          <div key={d.i} style={{
+            ...card,
+            background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white"
+          }}>
+            <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
 
-          <div>{d.date}</div>
-          <div style={{ fontSize:20 }}>{d.pitches}球</div>
-          <div>肩:{d.shoulder} / 肘:{d.elbow}</div>
-        </div>
-      ))}
+            <div>{d.date}</div>
+            <div style={{fontSize:22}}>{d.pitches}球</div>
+            <div>肩:{d.shoulder} / 肘:{d.elbow}</div>
+          </div>
+        ))}
 
-      {/* ナビ */}
-      <div style={{ display:"flex", gap:10, marginTop:20 }}>
-        <a href="/"><button style={navStyle("#222")}>ホーム</button></a>
-        <a href="/input"><button style={navStyle("#0070f3")}>入力</button></a>
-        <a href="/table"><button style={navStyle("#00a86b")}>結果</button></a>
+        {nav}
       </div>
     </div>
   );
 }
 
-const navStyle = (bg) => ({
+const bg = {
+  minHeight:"100vh",
+  background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
+  padding:20
+};
+
+const container = {
+  maxWidth:500,
+  margin:"0 auto"
+};
+
+const switchBox = {
+  display:"flex",
+  justifyContent:"space-between",
+  marginBottom:10
+};
+
+const warn = {
+  background:"#fef3c7",
+  padding:10,
+  borderRadius:10,
+  marginBottom:10
+};
+
+const card = {
+  padding:15,
+  borderRadius:15,
+  marginBottom:10,
+  boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
+};
+
+const delBtn = {
+  float:"right",
+  background:"red",
+  color:"white",
+  borderRadius:8
+};
+
+const nav = (
+  <div style={{display:"flex",gap:10,marginTop:20}}>
+    <a href="/"><button style={navBtn("#222")}>🏠</button></a>
+    <a href="/input"><button style={navBtn("#3b82f6")}>✏️</button></a>
+    <a href="/table"><button style={navBtn("#22c55e")}>📊</button></a>
+  </div>
+);
+
+const navBtn = (bg)=>({
   flex:1,
   padding:12,
-  borderRadius:10,
+  borderRadius:12,
   background:bg,
-  color:"white",
-  fontWeight:"bold"
+  color:"white"
 });
