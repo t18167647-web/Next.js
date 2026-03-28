@@ -1,0 +1,103 @@
+"use client";
+import { useState } from "react";
+
+const playerNames = ["熊", "坂田", "末永", "五島", "松尾"];
+
+export default function InputPage() {
+  const [players, setPlayers] = useState(
+    playerNames.map((name, i) => ({
+      id: i,
+      name,
+      records: {},
+    }))
+  );
+
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const updateRecord = (id, field, value) => {
+    setPlayers(
+      players.map((p) => {
+        if (p.id !== id) return p;
+
+        const record = p.records[selectedDate] || {
+          pitches: 0,
+          shoulder: "○",
+          elbow: "○",
+        };
+
+        return {
+          ...p,
+          records: {
+            ...p.records,
+            [selectedDate]: {
+              ...record,
+              [field]: value,
+            },
+          },
+        };
+      })
+    );
+  };
+
+  const getRecord = (p) =>
+    p.records[selectedDate] || {
+      pitches: 0,
+      shoulder: "○",
+      elbow: "○",
+    };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>入力ページ</h1>
+
+      <a href="/">← ホームに戻る</a>
+
+      <div>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
+      </div>
+
+      {players.map((p) => {
+        const r = getRecord(p);
+
+        return (
+          <div key={p.id} style={{ marginTop: "10px" }}>
+            <h3>{p.name}</h3>
+
+            球数:
+            <input
+              type="number"
+              value={r.pitches}
+              onChange={(e) =>
+                updateRecord(p.id, "pitches", Number(e.target.value))
+              }
+            />
+
+            <div>
+              肩:
+              {["○", "△", "×"].map((s) => (
+                <button onClick={() => updateRecord(p.id, "shoulder", s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              肘:
+              {["○", "△", "×"].map((s) => (
+                <button onClick={() => updateRecord(p.id, "elbow", s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
