@@ -16,17 +16,15 @@ export default function TablePage() {
     }
   }, []);
 
-  // 今日の日付
   const today = new Date().toISOString().split("T")[0];
 
   const filtered = data
+    .map((d, i) => ({ ...d, originalIndex: i })) // ←元の位置も保存
     .filter((d) => d.player === selectedPlayer)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // 今日入力されてるか
   const hasTodayData = filtered.some((d) => d.date === today);
 
-  // 1週間の合計
   const getWeeklyTotal = () => {
     const now = new Date();
     const weekAgo = new Date();
@@ -37,7 +35,6 @@ export default function TablePage() {
       .reduce((sum, d) => sum + d.pitches, 0);
   };
 
-  // 矢印操作
   const nextPlayer = () => {
     setIndex((prev) => (prev + 1) % playersList.length);
   };
@@ -49,6 +46,15 @@ export default function TablePage() {
   };
 
   const isDanger = (d) => d.shoulder === "×" || d.elbow === "×";
+
+  // 🔥 削除機能
+  const deleteData = (originalIndex) => {
+    const newData = [...data];
+    newData.splice(originalIndex, 1);
+
+    setData(newData);
+    localStorage.setItem("pitchData", JSON.stringify(newData));
+  };
 
   return (
     <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
@@ -64,15 +70,13 @@ export default function TablePage() {
         }}
       >
         <button onClick={prevPlayer}>←</button>
-
         <div style={{ fontSize: 20, fontWeight: "bold" }}>
           {selectedPlayer}
         </div>
-
         <button onClick={nextPlayer}>→</button>
       </div>
 
-      {/* 今日入力チェック */}
+      {/* 今日未入力 */}
       {!hasTodayData && (
         <div
           style={{
@@ -113,8 +117,26 @@ export default function TablePage() {
               padding: 15,
               marginBottom: 10,
               background: isDanger(d) ? "#ffe5e5" : "#f9f9f9",
+              position: "relative",
             }}
           >
+            {/* 削除ボタン */}
+            <button
+              onClick={() => deleteData(d.originalIndex)}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                background: "#ff4d4d",
+                color: "white",
+                border: "none",
+                borderRadius: 5,
+                padding: "5px 8px",
+              }}
+            >
+              削除
+            </button>
+
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div>{d.date}</div>
               <div style={{ fontSize: 22, fontWeight: "bold" }}>
