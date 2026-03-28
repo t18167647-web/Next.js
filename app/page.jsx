@@ -3,26 +3,10 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #dbeafe, #f0fdf4)",
-      padding: 20
-    }}>
-      <div style={{
-        maxWidth: 500,
-        margin: "0 auto",
-        textAlign: "center"
-      }}>
-        <h1 style={{
-          marginBottom: 10,
-          fontSize: 28
-        }}>
-          ⚾ 投手管理
-        </h1>
-
-        <p style={{ marginBottom: 30, color: "#555" }}>
-          毎日のコンディションをチェック
-        </p>
+    <div style={bg}>
+      <div style={container}>
+        <h1 style={title}>⚾ 投手管理</h1>
+        <p style={subtitle}>毎日のコンディションをチェック</p>
 
         <Link href="/input">
           <button style={mainBtn("#3b82f6")}>✏️ 入力する</button>
@@ -35,6 +19,28 @@ export default function Home() {
     </div>
   );
 }
+
+const bg = {
+  minHeight: "100vh",
+  background: "linear-gradient(135deg, #dbeafe, #f0fdf4)",
+  padding: 20
+};
+
+const container = {
+  maxWidth: 500,
+  margin: "0 auto",
+  textAlign: "center"
+};
+
+const title = {
+  fontSize: 28,
+  marginBottom: 10
+};
+
+const subtitle = {
+  color: "#555",
+  marginBottom: 30
+};
 
 const mainBtn = (bg) => ({
   width: "100%",
