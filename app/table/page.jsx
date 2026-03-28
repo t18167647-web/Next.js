@@ -23,18 +23,15 @@ export default function TablePage() {
 
   const hasToday = filtered.some(d=>d.date===today);
 
-  // 🔥 1週間の球数
-  const getWeeklyTotal = ()=>{
-    const now = new Date();
-    const weekAgo = new Date();
-    weekAgo.setDate(now.getDate() - 7);
-
-    return filtered
-      .filter(d => new Date(d.date) >= weekAgo)
-      .reduce((sum,d)=>sum + d.pitches, 0);
-  };
-
-  const weekly = getWeeklyTotal();
+  // 🔥 週間球数
+  const weekly = filtered
+    .filter(d=>{
+      const now = new Date();
+      const weekAgo = new Date();
+      weekAgo.setDate(now.getDate()-7);
+      return new Date(d.date) >= weekAgo;
+    })
+    .reduce((sum,d)=>sum+d.pitches,0);
 
   const del = (i)=>{
     const newData=[...data];
@@ -51,45 +48,76 @@ export default function TablePage() {
         {/* 選手切り替え */}
         <div style={switchBox}>
           <button onClick={()=>setIndex(index===0?4:index-1)} style={arrowBtn}>←</button>
-          <b style={{fontSize:20}}>{player}</b>
+          <b style={{fontSize:22}}>{player}</b>
           <button onClick={()=>setIndex((index+1)%5)} style={arrowBtn}>→</button>
         </div>
 
-        {/* 🔥 週間球数 */}
+        {/* 🔥 まとめカード */}
         <div style={{
-          background: weekly > 300 ? "#fecaca" : "#e0f2fe",
-          padding:15,
-          borderRadius:15,
+          background: weekly > 300 ? "#fee2e2" : "#e0f2fe",
+          padding:20,
+          borderRadius:20,
           marginBottom:15,
           textAlign:"center",
-          fontWeight:"bold"
+          boxShadow:"0 4px 10px rgba(0,0,0,0.08)"
         }}>
-          1週間の投球数：{weekly}球
+          <div style={{ fontSize:14, color:"#555" }}>
+            直近1週間
+          </div>
+
+          <div style={{ fontSize:28, fontWeight:"bold" }}>
+            {weekly} 球
+          </div>
+
           {weekly > 300 && (
-            <div style={{ color:"red", marginTop:5 }}>
-              ⚠ 投げすぎ注意！
+            <div style={{
+              color:"red",
+              fontWeight:"bold",
+              marginTop:5
+            }}>
+              ⚠ 投げすぎ注意
             </div>
           )}
         </div>
 
         {/* 今日未入力 */}
         {!hasToday && (
-          <div style={warn}>⚠ 今日未入力</div>
+          <div style={warn}>⚠ 今日の入力がありません</div>
         )}
 
-        {/* データ */}
-        {filtered.map(d=>(
-          <div key={d.i} style={{
-            ...card,
-            background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white"
-          }}>
-            <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
-
-            <div>{d.date}</div>
-            <div style={{fontSize:22}}>{d.pitches}球</div>
-            <div>肩:{d.shoulder} / 肘:{d.elbow}</div>
+        {/* データ一覧 */}
+        {filtered.length === 0 ? (
+          <div style={{ textAlign:"center", color:"#666" }}>
+            データなし
           </div>
-        ))}
+        ) : (
+          filtered.map(d=>(
+            <div key={d.i} style={{
+              ...card,
+              background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white"
+            }}>
+              <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
+
+              <div style={{ display:"flex", justifyContent:"space-between" }}>
+                <div>{d.date}</div>
+                <div style={{ fontSize:20, fontWeight:"bold" }}>
+                  {d.pitches}球
+                </div>
+              </div>
+
+              <div style={{ marginTop:5 }}>
+                肩：
+                <span style={{ color: colorState(d.shoulder) }}>
+                  {d.shoulder}
+                </span>
+                ／ 肘：
+                <span style={{ color: colorState(d.elbow) }}>
+                  {d.elbow}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
 
         {/* ナビ */}
         <div style={{display:"flex",gap:10,marginTop:20}}>
@@ -102,7 +130,7 @@ export default function TablePage() {
   );
 }
 
-/* ---------- デザイン ---------- */
+/* ---------- スタイル ---------- */
 
 const bg = {
   minHeight:"100vh",
@@ -123,18 +151,19 @@ const switchBox = {
 };
 
 const arrowBtn = {
-  padding:"12px 18px",
-  fontSize:20,
-  borderRadius:10,
+  padding:"14px 20px",
+  fontSize:22,
+  borderRadius:12,
   background:"#3b82f6",
   color:"white"
 };
 
 const warn = {
   background:"#fef3c7",
-  padding:10,
-  borderRadius:10,
-  marginBottom:10
+  padding:12,
+  borderRadius:12,
+  marginBottom:10,
+  textAlign:"center"
 };
 
 const card = {
@@ -159,3 +188,10 @@ const navBtn = (bg)=>({
   color:"white",
   fontWeight:"bold"
 });
+
+/* 状態の色 */
+const colorState = (s)=>{
+  if(s==="○") return "#3b82f6";
+  if(s==="△") return "#facc15";
+  return "#ef4444";
+};
