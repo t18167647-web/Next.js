@@ -99,6 +99,35 @@ export default function Page() {
         <button onClick={addPlayer}>追加</button>
       </div>
 
+      {/* 一覧表（ここが新しく追加した部分） */}
+      <h2 style={{ marginTop: "20px" }}>一覧</h2>
+      <table border="1" cellPadding="5">
+        <thead>
+          <tr>
+            <th>名前</th>
+            <th>球数</th>
+            <th>肩</th>
+            <th>肘</th>
+            <th>7日合計</th>
+          </tr>
+        </thead>
+        <tbody>
+          {players.map((p) => {
+            const record = getRecord(p);
+            return (
+              <tr key={p.id}>
+                <td>{p.name}</td>
+                <td>{record.pitches}</td>
+                <td>{record.shoulder}</td>
+                <td>{record.elbow}</td>
+                <td>{getWeeklyTotal(p)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* 個別入力エリア */}
       {players.map((p) => {
         const record = getRecord(p);
 
@@ -113,7 +142,6 @@ export default function Page() {
           >
             <h3>{p.name}</h3>
 
-            {/* 球数（数字入力） */}
             <div>
               球数:
               <input
@@ -126,12 +154,6 @@ export default function Page() {
               />
             </div>
 
-            {/* 週間合計 */}
-            <div style={{ marginTop: "5px" }}>
-              直近7日合計: {getWeeklyTotal(p)} 球
-            </div>
-
-            {/* 肩 */}
             <div style={{ marginTop: "5px" }}>
               肩:
               {["○", "△", "×"].map((s) => (
@@ -148,7 +170,6 @@ export default function Page() {
               ))}
             </div>
 
-            {/* 肘 */}
             <div style={{ marginTop: "5px" }}>
               肘:
               {["○", "△", "×"].map((s) => (
