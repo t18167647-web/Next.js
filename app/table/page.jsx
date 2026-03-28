@@ -14,75 +14,81 @@ export default function TablePage() {
     }
   }, []);
 
-  // 日付順に並び替え（新しい順）
-  const sortedData = data
+  const filtered = data
     .filter((d) => d.player === selectedPlayer)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // 1週間の合計
   const getWeeklyTotal = () => {
     const now = new Date();
     const weekAgo = new Date();
     weekAgo.setDate(now.getDate() - 7);
 
-    return sortedData
+    return filtered
       .filter((d) => new Date(d.date) >= weekAgo)
       .reduce((sum, d) => sum + d.pitches, 0);
   };
 
+  // 危険判定
+  const isDanger = (d) => d.shoulder === "×" || d.elbow === "×";
+
   return (
-    <div style={{ padding: 20, maxWidth: 600, margin: "0 auto" }}>
-      <h1 style={{ textAlign: "center" }}>一覧</h1>
+    <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
+      <h1 style={{ textAlign: "center" }}>結果</h1>
 
-      {/* 選手選択 */}
-      <div style={{ marginBottom: 20 }}>
-        <select
-          value={selectedPlayer}
-          onChange={(e) => setSelectedPlayer(e.target.value)}
-          style={{ width: "100%", padding: 10, fontSize: 16 }}
-        >
-          {playersList.map((p) => (
-            <option key={p}>{p}</option>
-          ))}
-        </select>
-      </div>
+      {/* 選手 */}
+      <select
+        value={selectedPlayer}
+        onChange={(e) => setSelectedPlayer(e.target.value)}
+        style={{
+          width: "100%",
+          padding: 12,
+          fontSize: 16,
+          marginBottom: 15,
+        }}
+      >
+        {playersList.map((p) => (
+          <option key={p}>{p}</option>
+        ))}
+      </select>
 
-      {/* 合計表示 */}
+      {/* 合計 */}
       <div
         style={{
           background: "#f0f0f0",
           padding: 15,
           borderRadius: 10,
-          marginBottom: 20,
           textAlign: "center",
-          fontSize: 18,
+          marginBottom: 15,
           fontWeight: "bold",
         }}
       >
-        1週間の球数：{getWeeklyTotal()} 球
+        1週間：{getWeeklyTotal()} 球
       </div>
 
-      {/* データ一覧 */}
-      {sortedData.length === 0 ? (
+      {/* データ */}
+      {filtered.length === 0 ? (
         <div style={{ textAlign: "center" }}>データなし</div>
       ) : (
-        sortedData.map((d, i) => (
+        filtered.map((d, i) => (
           <div
             key={i}
             style={{
-              border: "1px solid #ddd",
               borderRadius: 10,
               padding: 15,
               marginBottom: 10,
+              background: isDanger(d) ? "#ffe5e5" : "#f9f9f9",
             }}
           >
-            <div style={{ fontSize: 14, color: "#666" }}>{d.date}</div>
-
-            <div style={{ fontSize: 22, fontWeight: "bold" }}>
-              {d.pitches} 球
+            {/* 上段 */}
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div>{d.date}</div>
+              <div style={{ fontSize: 22, fontWeight: "bold" }}>
+                {d.pitches}球
+              </div>
             </div>
 
-            <div>
+            {/* 下段 */}
+            <div style={{ marginTop: 5 }}>
               肩：
               <span style={{ color: d.shoulder === "×" ? "red" : "green" }}>
                 {d.shoulder}
@@ -97,9 +103,9 @@ export default function TablePage() {
       )}
 
       <br />
-      <a href="/">ホームへ</a>
+      <a href="/">ホーム</a>
       <br />
-      <a href="/input">入力ページへ</a>
+      <a href="/input">入力</a>
     </div>
   );
 }
