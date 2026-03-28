@@ -3,34 +3,46 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div style={{ padding: 20, maxWidth: 500, margin: "0 auto", textAlign: "center" }}>
-      <h1 style={{ marginBottom: 30 }}>投手管理</h1>
-
-      <Link href="/input">
-        <button style={{
-          width: "100%",
-          padding: 20,
-          fontSize: 20,
-          marginBottom: 15,
-          borderRadius: 15,
-          background: "#0070f3",
-          color: "white",
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #dbeafe, #f0fdf4)",
+      padding: 20
+    }}>
+      <div style={{
+        maxWidth: 500,
+        margin: "0 auto",
+        textAlign: "center"
+      }}>
+        <h1 style={{
+          marginBottom: 10,
+          fontSize: 28
         }}>
-          入力する
-        </button>
-      </Link>
+          ⚾ 投手管理
+        </h1>
 
-      <Link href="/table">
-        <button style={{
-          width: "100%",
-          padding: 20,
-          fontSize: 20,
-          borderRadius: 15,
-          background: "#eee",
-        }}>
-          結果を見る
-        </button>
-      </Link>
+        <p style={{ marginBottom: 30, color: "#555" }}>
+          毎日のコンディションをチェック
+        </p>
+
+        <Link href="/input">
+          <button style={mainBtn("#3b82f6")}>✏️ 入力する</button>
+        </Link>
+
+        <Link href="/table">
+          <button style={mainBtn("#22c55e")}>📊 結果を見る</button>
+        </Link>
+      </div>
     </div>
   );
 }
+
+const mainBtn = (bg) => ({
+  width: "100%",
+  padding: 18,
+  fontSize: 18,
+  marginBottom: 15,
+  borderRadius: 20,
+  background: bg,
+  color: "white",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+});
