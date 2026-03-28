@@ -7,7 +7,12 @@ export default function PitchManagerApp() {
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
-  });
+     return (
+    <div>
+      <h1>ピッチ管理アプリ</h1>
+      <p>動いた！</p>
+    </div>
+  );
 
   const addPlayer = () => {
     if (!name) return;
