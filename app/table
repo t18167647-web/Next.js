@@ -1,23 +1,22 @@
 "use client";
-import { useState } from "react";
-
-const playerNames = ["熊", "坂田", "末永", "五島", "松尾"];
+import { useState, useEffect } from "react";
 
 export default function TablePage() {
-  const [players] = useState(
-    playerNames.map((name, i) => ({
-      id: i,
-      name,
-      records: {},
-    }))
-  );
-
+  const [players, setPlayers] = useState([]);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
+  // 保存データ読み込み
+  useEffect(() => {
+    const saved = localStorage.getItem("players");
+    if (saved) {
+      setPlayers(JSON.parse(saved));
+    }
+  }, []);
+
   const getRecord = (p) =>
-    p.records[selectedDate] || {
+    p.records?.[selectedDate] || {
       pitches: 0,
       shoulder: "○",
       elbow: "○",
@@ -26,7 +25,6 @@ export default function TablePage() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>一覧ページ</h1>
-
       <a href="/">← ホームに戻る</a>
 
       <div>
