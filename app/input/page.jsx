@@ -35,16 +35,12 @@ export default function InputPage() {
         <h1 style={{ textAlign:"center" }}>✏️ 入力</h1>
 
         <div style={card}>
-
-          {/* 選手 */}
           <select value={player} onChange={(e)=>setPlayer(e.target.value)} style={input}>
             {playersList.map(p=><option key={p}>{p}</option>)}
           </select>
 
-          {/* 日付 */}
           <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} style={input}/>
 
-          {/* 球数 */}
           <input type="number" placeholder="球数"
             value={pitches}
             onChange={(e)=>setPitches(e.target.value)}
@@ -74,7 +70,6 @@ export default function InputPage() {
             </div>
           </div>
 
-          {/* 保存 */}
           <button onClick={saveData} style={saveBtn}>
             保存
           </button>
@@ -91,7 +86,7 @@ export default function InputPage() {
   );
 }
 
-/* ---------- デザイン ---------- */
+/* スタイル */
 
 const bg = {
   minHeight:"100vh",
@@ -128,7 +123,6 @@ const row = {
   gap:10
 };
 
-/* 🔥 状態ボタン（青・黄・赤） */
 const stateBtn = (current, val)=>({
   flex:1,
   padding:15,
@@ -139,10 +133,10 @@ const stateBtn = (current, val)=>({
   background:
     current===val
       ? val==="○"
-        ? "#3b82f6"   // 青
+        ? "#3b82f6"
         : val==="△"
-        ? "#facc15"   // 黄色
-        : "#ef4444"   // 赤
+        ? "#facc15"
+        : "#ef4444"
       : "#ddd"
 });
 
@@ -152,8 +146,7 @@ const saveBtn = {
   marginTop:15,
   borderRadius:15,
   background:"#3b82f6",
-  color:"white",
-  fontSize:16
+  color:"white"
 };
 
 const navBtn = (bg)=>({
