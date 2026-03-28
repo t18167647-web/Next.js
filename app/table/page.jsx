@@ -23,7 +23,6 @@ export default function TablePage() {
 
   const hasToday = filtered.some(d=>d.date===today);
 
-  // 週間球数
   const weekly = filtered
     .filter(d=>{
       const now = new Date();
@@ -45,56 +44,34 @@ export default function TablePage() {
       <div style={container}>
         <h1 style={{textAlign:"center"}}>📊 結果</h1>
 
-        {/* 🔥 選手切り替え（矢印＋選択） */}
+        {/* 切り替え */}
         <div style={switchBox}>
-          <button onClick={()=>setIndex(index===0?4:index-1)} style={arrowBtn}>
-            ←
-          </button>
+          <button onClick={()=>setIndex(index===0?4:index-1)} style={arrowBtn}>←</button>
 
-          <select
-            value={player}
-            onChange={(e)=>{
-              const newIndex = playersList.indexOf(e.target.value);
-              setIndex(newIndex);
-            }}
-            style={selectStyle}
-          >
-            {playersList.map(p=>(
-              <option key={p}>{p}</option>
-            ))}
+          <select value={player}
+            onChange={(e)=>setIndex(playersList.indexOf(e.target.value))}
+            style={selectStyle}>
+            {playersList.map(p=><option key={p}>{p}</option>)}
           </select>
 
-          <button onClick={()=>setIndex((index+1)%5)} style={arrowBtn}>
-            →
-          </button>
+          <button onClick={()=>setIndex((index+1)%5)} style={arrowBtn}>→</button>
         </div>
 
-        {/* 週間球数 */}
+        {/* 週間 */}
         <div style={{
-          background: weekly > 300 ? "#fee2e2" : "#e0f2fe",
+          background: weekly>300 ? "#fee2e2":"#e0f2fe",
           padding:20,
           borderRadius:20,
           marginBottom:15,
           textAlign:"center"
         }}>
-          <div style={{ fontSize:14 }}>直近1週間</div>
-          <div style={{ fontSize:28, fontWeight:"bold" }}>
-            {weekly} 球
-          </div>
-
-          {weekly > 300 && (
-            <div style={{ color:"red", fontWeight:"bold" }}>
-              ⚠ 投げすぎ注意
-            </div>
-          )}
+          <div>直近1週間</div>
+          <div style={{ fontSize:28, fontWeight:"bold" }}>{weekly}球</div>
+          {weekly>300 && <div style={{color:"red"}}>⚠ 投げすぎ</div>}
         </div>
 
-        {/* 未入力 */}
-        {!hasToday && (
-          <div style={warn}>⚠ 今日未入力</div>
-        )}
+        {!hasToday && <div style={warn}>⚠ 今日未入力</div>}
 
-        {/* データ */}
         {filtered.map(d=>(
           <div key={d.i} style={{
             ...card,
@@ -102,35 +79,18 @@ export default function TablePage() {
           }}>
             <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
 
-            <div style={{
-              display:"flex",
-              justifyContent:"space-between"
-            }}>
+            <div style={{display:"flex",justifyContent:"space-between"}}>
               <div>{d.date}</div>
-              <div style={{ fontSize:20, fontWeight:"bold" }}>
-                {d.pitches}球
-              </div>
+              <div style={{fontSize:20,fontWeight:"bold"}}>{d.pitches}球</div>
             </div>
 
-            {/* 🔥 大きい状態表示 */}
             <div style={{
               marginTop:8,
               display:"flex",
               justifyContent:"space-between"
             }}>
-              <div>
-                肩：
-                <span style={statusStyle(d.shoulder)}>
-                  {d.shoulder}
-                </span>
-              </div>
-
-              <div>
-                肘：
-                <span style={statusStyle(d.elbow)}>
-                  {d.elbow}
-                </span>
-              </div>
+              <div>肩：<span style={statusStyle(d.shoulder)}>{d.shoulder}</span></div>
+              <div>肘：<span style={statusStyle(d.elbow)}>{d.elbow}</span></div>
             </div>
           </div>
         ))}
@@ -146,80 +106,21 @@ export default function TablePage() {
   );
 }
 
-/* ---------- デザイン ---------- */
+/* スタイル */
 
-const bg = {
-  minHeight:"100vh",
-  background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
-  padding:20
-};
+const bg={minHeight:"100vh",background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",padding:20};
+const container={maxWidth:500,margin:"0 auto"};
+const switchBox={display:"flex",gap:10,marginBottom:15};
+const arrowBtn={padding:"12px 18px",fontSize:20,background:"#3b82f6",color:"white",borderRadius:10};
+const selectStyle={flex:1,padding:10,borderRadius:10};
+const warn={background:"#fef3c7",padding:10,borderRadius:10,marginBottom:10,textAlign:"center"};
+const card={padding:15,borderRadius:15,marginBottom:10,boxShadow:"0 4px 10px rgba(0,0,0,0.05)"};
+const delBtn={float:"right",background:"red",color:"white",borderRadius:8};
+const navBtn=(bg)=>({flex:1,padding:12,borderRadius:12,background:bg,color:"white",fontWeight:"bold"});
 
-const container = {
-  maxWidth:500,
-  margin:"0 auto"
-};
-
-const switchBox = {
-  display:"flex",
-  alignItems:"center",
-  justifyContent:"space-between",
-  marginBottom:15,
-  gap:10
-};
-
-const arrowBtn = {
-  padding:"12px 18px",
-  fontSize:20,
-  borderRadius:10,
-  background:"#3b82f6",
-  color:"white"
-};
-
-const selectStyle = {
-  flex:1,
-  padding:10,
-  borderRadius:10,
-  fontSize:16
-};
-
-const warn = {
-  background:"#fef3c7",
-  padding:10,
-  borderRadius:10,
-  marginBottom:10,
-  textAlign:"center"
-};
-
-const card = {
-  padding:15,
-  borderRadius:15,
-  marginBottom:10,
-  boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
-};
-
-const delBtn = {
-  float:"right",
-  background:"red",
-  color:"white",
-  borderRadius:8
-};
-
-const navBtn = (bg)=>({
-  flex:1,
-  padding:12,
-  borderRadius:12,
-  background:bg,
-  color:"white",
-  fontWeight:"bold"
-};
-
-/* 🔥 状態スタイル */
-const statusStyle = (s)=>({
+const statusStyle=(s)=>({
   fontSize:28,
   fontWeight:"bold",
   marginLeft:5,
-  color:
-    s==="○" ? "#3b82f6" :
-    s==="△" ? "#facc15" :
-    "#ef4444"
+  color: s==="○"?"#3b82f6": s==="△"?"#facc15":"#ef4444"
 });
