@@ -30,45 +30,32 @@ export default function InputPage() {
   };
 
   return (
-    <div style={{
-      minHeight:"100vh",
-      background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
-      padding:20
-    }}>
-      <div style={{ maxWidth:500, margin:"0 auto" }}>
+    <div style={bg}>
+      <div style={container}>
         <h1 style={{ textAlign:"center" }}>✏️ 入力</h1>
 
-        <div style={{
-          background:"white",
-          padding:15,
-          borderRadius:15,
-          boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
-        }}>
+        <div style={card}>
 
           {/* 選手 */}
-          <select value={player} onChange={(e)=>setPlayer(e.target.value)}
-            style={inputStyle}>
+          <select value={player} onChange={(e)=>setPlayer(e.target.value)} style={input}>
             {playersList.map(p=><option key={p}>{p}</option>)}
           </select>
 
           {/* 日付 */}
-          <input type="date" value={date}
-            onChange={(e)=>setDate(e.target.value)}
-            style={inputStyle}/>
+          <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} style={input}/>
 
           {/* 球数 */}
           <input type="number" placeholder="球数"
             value={pitches}
             onChange={(e)=>setPitches(e.target.value)}
-            style={{...inputStyle, fontSize:20}}/>
+            style={{...input, fontSize:20}}/>
 
           {/* 肩 */}
           <div style={{ marginTop:10 }}>
             <div style={label}>肩の状態</div>
-            <div style={btnRow}>
+            <div style={row}>
               {["○","△","×"].map(s=>(
-                <button key={s} onClick={()=>setShoulder(s)}
-                  style={stateBtn(shoulder, s)}>
+                <button key={s} onClick={()=>setShoulder(s)} style={stateBtn(shoulder,s)}>
                   {s}
                 </button>
               ))}
@@ -78,10 +65,9 @@ export default function InputPage() {
           {/* 肘 */}
           <div style={{ marginTop:10 }}>
             <div style={label}>肘の状態</div>
-            <div style={btnRow}>
+            <div style={row}>
               {["○","△","×"].map(s=>(
-                <button key={s} onClick={()=>setElbow(s)}
-                  style={stateBtn(elbow, s)}>
+                <button key={s} onClick={()=>setElbow(s)} style={stateBtn(elbow,s)}>
                   {s}
                 </button>
               ))}
@@ -94,7 +80,7 @@ export default function InputPage() {
           </button>
         </div>
 
-        {/* ナビ（文字付き） */}
+        {/* ナビ */}
         <div style={{display:"flex",gap:10,marginTop:20}}>
           <a href="/"><button style={navBtn("#222")}>🏠 ホーム</button></a>
           <a href="/input"><button style={navBtn("#3b82f6")}>✏️ 入力</button></a>
@@ -105,9 +91,27 @@ export default function InputPage() {
   );
 }
 
-/* ---------- スタイル ---------- */
+/* ---------- デザイン ---------- */
 
-const inputStyle = {
+const bg = {
+  minHeight:"100vh",
+  background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
+  padding:20
+};
+
+const container = {
+  maxWidth:500,
+  margin:"0 auto"
+};
+
+const card = {
+  background:"white",
+  padding:15,
+  borderRadius:15,
+  boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
+};
+
+const input = {
   width:"100%",
   padding:12,
   marginBottom:10,
@@ -119,25 +123,27 @@ const label = {
   marginBottom:5
 };
 
-const btnRow = {
+const row = {
   display:"flex",
   gap:10
 };
 
+/* 🔥 状態ボタン（青・黄・赤） */
 const stateBtn = (current, val)=>({
   flex:1,
   padding:15,
   fontSize:18,
   borderRadius:12,
   fontWeight:"bold",
+  color: val==="△" ? "#333" : "white",
   background:
     current===val
       ? val==="○"
-        ? "#bbf7d0"
+        ? "#3b82f6"   // 青
         : val==="△"
-        ? "#fde68a"
-        : "#fecaca"
-      : "#eee"
+        ? "#facc15"   // 黄色
+        : "#ef4444"   // 赤
+      : "#ddd"
 });
 
 const saveBtn = {
