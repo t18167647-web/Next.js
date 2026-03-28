@@ -23,7 +23,7 @@ export default function TablePage() {
 
   const hasToday = filtered.some(d=>d.date===today);
 
-  // 🔥 週間球数
+  // 週間球数
   const weekly = filtered
     .filter(d=>{
       const now = new Date();
@@ -45,79 +45,95 @@ export default function TablePage() {
       <div style={container}>
         <h1 style={{textAlign:"center"}}>📊 結果</h1>
 
-        {/* 選手切り替え */}
+        {/* 🔥 選手切り替え（矢印＋選択） */}
         <div style={switchBox}>
-          <button onClick={()=>setIndex(index===0?4:index-1)} style={arrowBtn}>←</button>
-          <b style={{fontSize:22}}>{player}</b>
-          <button onClick={()=>setIndex((index+1)%5)} style={arrowBtn}>→</button>
+          <button onClick={()=>setIndex(index===0?4:index-1)} style={arrowBtn}>
+            ←
+          </button>
+
+          <select
+            value={player}
+            onChange={(e)=>{
+              const newIndex = playersList.indexOf(e.target.value);
+              setIndex(newIndex);
+            }}
+            style={selectStyle}
+          >
+            {playersList.map(p=>(
+              <option key={p}>{p}</option>
+            ))}
+          </select>
+
+          <button onClick={()=>setIndex((index+1)%5)} style={arrowBtn}>
+            →
+          </button>
         </div>
 
-        {/* 🔥 まとめカード */}
+        {/* 週間球数 */}
         <div style={{
           background: weekly > 300 ? "#fee2e2" : "#e0f2fe",
           padding:20,
           borderRadius:20,
           marginBottom:15,
-          textAlign:"center",
-          boxShadow:"0 4px 10px rgba(0,0,0,0.08)"
+          textAlign:"center"
         }}>
-          <div style={{ fontSize:14, color:"#555" }}>
-            直近1週間
-          </div>
-
+          <div style={{ fontSize:14 }}>直近1週間</div>
           <div style={{ fontSize:28, fontWeight:"bold" }}>
             {weekly} 球
           </div>
 
           {weekly > 300 && (
-            <div style={{
-              color:"red",
-              fontWeight:"bold",
-              marginTop:5
-            }}>
+            <div style={{ color:"red", fontWeight:"bold" }}>
               ⚠ 投げすぎ注意
             </div>
           )}
         </div>
 
-        {/* 今日未入力 */}
+        {/* 未入力 */}
         {!hasToday && (
-          <div style={warn}>⚠ 今日の入力がありません</div>
+          <div style={warn}>⚠ 今日未入力</div>
         )}
 
-        {/* データ一覧 */}
-        {filtered.length === 0 ? (
-          <div style={{ textAlign:"center", color:"#666" }}>
-            データなし
-          </div>
-        ) : (
-          filtered.map(d=>(
-            <div key={d.i} style={{
-              ...card,
-              background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white"
+        {/* データ */}
+        {filtered.map(d=>(
+          <div key={d.i} style={{
+            ...card,
+            background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white"
+          }}>
+            <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
+
+            <div style={{
+              display:"flex",
+              justifyContent:"space-between"
             }}>
-              <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
-
-              <div style={{ display:"flex", justifyContent:"space-between" }}>
-                <div>{d.date}</div>
-                <div style={{ fontSize:20, fontWeight:"bold" }}>
-                  {d.pitches}球
-                </div>
+              <div>{d.date}</div>
+              <div style={{ fontSize:20, fontWeight:"bold" }}>
+                {d.pitches}球
               </div>
+            </div>
 
-              <div style={{ marginTop:5 }}>
+            {/* 🔥 大きい状態表示 */}
+            <div style={{
+              marginTop:8,
+              display:"flex",
+              justifyContent:"space-between"
+            }}>
+              <div>
                 肩：
-                <span style={{ color: colorState(d.shoulder) }}>
+                <span style={statusStyle(d.shoulder)}>
                   {d.shoulder}
                 </span>
-                ／ 肘：
-                <span style={{ color: colorState(d.elbow) }}>
+              </div>
+
+              <div>
+                肘：
+                <span style={statusStyle(d.elbow)}>
                   {d.elbow}
                 </span>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
 
         {/* ナビ */}
         <div style={{display:"flex",gap:10,marginTop:20}}>
@@ -130,7 +146,7 @@ export default function TablePage() {
   );
 }
 
-/* ---------- スタイル ---------- */
+/* ---------- デザイン ---------- */
 
 const bg = {
   minHeight:"100vh",
@@ -145,23 +161,31 @@ const container = {
 
 const switchBox = {
   display:"flex",
-  justifyContent:"space-between",
   alignItems:"center",
-  marginBottom:15
+  justifyContent:"space-between",
+  marginBottom:15,
+  gap:10
 };
 
 const arrowBtn = {
-  padding:"14px 20px",
-  fontSize:22,
-  borderRadius:12,
+  padding:"12px 18px",
+  fontSize:20,
+  borderRadius:10,
   background:"#3b82f6",
   color:"white"
 };
 
+const selectStyle = {
+  flex:1,
+  padding:10,
+  borderRadius:10,
+  fontSize:16
+};
+
 const warn = {
   background:"#fef3c7",
-  padding:12,
-  borderRadius:12,
+  padding:10,
+  borderRadius:10,
   marginBottom:10,
   textAlign:"center"
 };
@@ -187,11 +211,15 @@ const navBtn = (bg)=>({
   background:bg,
   color:"white",
   fontWeight:"bold"
-});
-
-/* 状態の色 */
-const colorState = (s)=>{
-  if(s==="○") return "#3b82f6";
-  if(s==="△") return "#facc15";
-  return "#ef4444";
 };
+
+/* 🔥 状態スタイル */
+const statusStyle = (s)=>({
+  fontSize:28,
+  fontWeight:"bold",
+  marginLeft:5,
+  color:
+    s==="○" ? "#3b82f6" :
+    s==="△" ? "#facc15" :
+    "#ef4444"
+});
