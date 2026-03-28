@@ -31,26 +31,48 @@ export default function TablePage() {
   };
 
   return (
-    <div style={bg}>
-      <div style={container}>
+    <div style={{
+      minHeight:"100vh",
+      background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
+      padding:20
+    }}>
+      <div style={{ maxWidth:500, margin:"0 auto" }}>
         <h1 style={{textAlign:"center"}}>📊 結果</h1>
 
-        <div style={switchBox}>
+        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
           <button onClick={()=>setIndex(index===0?4:index-1)}>←</button>
           <b>{player}</b>
           <button onClick={()=>setIndex((index+1)%5)}>→</button>
         </div>
 
         {!hasToday && (
-          <div style={warn}>⚠ 今日未入力</div>
+          <div style={{
+            background:"#fef3c7",
+            padding:10,
+            borderRadius:10,
+            marginBottom:10
+          }}>
+            ⚠ 今日未入力
+          </div>
         )}
 
         {filtered.map(d=>(
           <div key={d.i} style={{
-            ...card,
-            background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white"
+            background:(d.shoulder==="×"||d.elbow==="×")?"#fee2e2":"white",
+            padding:15,
+            borderRadius:15,
+            marginBottom:10,
+            boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
           }}>
-            <button onClick={()=>del(d.i)} style={delBtn}>✖</button>
+            <button onClick={()=>del(d.i)}
+              style={{
+                float:"right",
+                background:"red",
+                color:"white",
+                borderRadius:8
+              }}>
+              ✖
+            </button>
 
             <div>{d.date}</div>
             <div style={{fontSize:22}}>{d.pitches}球</div>
@@ -58,57 +80,16 @@ export default function TablePage() {
           </div>
         ))}
 
-        {nav}
+        {/* ナビ */}
+        <div style={{display:"flex",gap:10,marginTop:20}}>
+          <a href="/"><button style={navBtn("#222")}>🏠</button></a>
+          <a href="/input"><button style={navBtn("#3b82f6")}>✏️</button></a>
+          <a href="/table"><button style={navBtn("#22c55e")}>📊</button></a>
+        </div>
       </div>
     </div>
   );
 }
-
-const bg = {
-  minHeight:"100vh",
-  background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
-  padding:20
-};
-
-const container = {
-  maxWidth:500,
-  margin:"0 auto"
-};
-
-const switchBox = {
-  display:"flex",
-  justifyContent:"space-between",
-  marginBottom:10
-};
-
-const warn = {
-  background:"#fef3c7",
-  padding:10,
-  borderRadius:10,
-  marginBottom:10
-};
-
-const card = {
-  padding:15,
-  borderRadius:15,
-  marginBottom:10,
-  boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
-};
-
-const delBtn = {
-  float:"right",
-  background:"red",
-  color:"white",
-  borderRadius:8
-};
-
-const nav = (
-  <div style={{display:"flex",gap:10,marginTop:20}}>
-    <a href="/"><button style={navBtn("#222")}>🏠</button></a>
-    <a href="/input"><button style={navBtn("#3b82f6")}>✏️</button></a>
-    <a href="/table"><button style={navBtn("#22c55e")}>📊</button></a>
-  </div>
-);
 
 const navBtn = (bg)=>({
   flex:1,
