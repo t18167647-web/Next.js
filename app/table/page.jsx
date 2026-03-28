@@ -5,7 +5,9 @@ const playersList = ["熊", "坂田", "末永", "五島", "松尾"];
 
 export default function TablePage() {
   const [data, setData] = useState([]);
-  const [selectedPlayer, setSelectedPlayer] = useState(playersList[0]);
+  const [index, setIndex] = useState(0);
+
+  const selectedPlayer = playersList[index];
 
   useEffect(() => {
     const saved = localStorage.getItem("pitchData");
@@ -14,10 +16,17 @@ export default function TablePage() {
     }
   }, []);
 
+  // 今日の日付
+  const today = new Date().toISOString().split("T")[0];
+
   const filtered = data
     .filter((d) => d.player === selectedPlayer)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  // 今日入力されてるか
+  const hasTodayData = filtered.some((d) => d.date === today);
+
+  // 1週間の合計
   const getWeeklyTotal = () => {
     const now = new Date();
     const weekAgo = new Date();
@@ -28,28 +37,55 @@ export default function TablePage() {
       .reduce((sum, d) => sum + d.pitches, 0);
   };
 
-  // 危険判定
+  // 矢印操作
+  const nextPlayer = () => {
+    setIndex((prev) => (prev + 1) % playersList.length);
+  };
+
+  const prevPlayer = () => {
+    setIndex((prev) =>
+      prev === 0 ? playersList.length - 1 : prev - 1
+    );
+  };
+
   const isDanger = (d) => d.shoulder === "×" || d.elbow === "×";
 
   return (
     <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
       <h1 style={{ textAlign: "center" }}>結果</h1>
 
-      {/* 選手 */}
-      <select
-        value={selectedPlayer}
-        onChange={(e) => setSelectedPlayer(e.target.value)}
+      {/* 選手切り替え */}
+      <div
         style={{
-          width: "100%",
-          padding: 12,
-          fontSize: 16,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 15,
         }}
       >
-        {playersList.map((p) => (
-          <option key={p}>{p}</option>
-        ))}
-      </select>
+        <button onClick={prevPlayer}>←</button>
+
+        <div style={{ fontSize: 20, fontWeight: "bold" }}>
+          {selectedPlayer}
+        </div>
+
+        <button onClick={nextPlayer}>→</button>
+      </div>
+
+      {/* 今日入力チェック */}
+      {!hasTodayData && (
+        <div
+          style={{
+            background: "#fff3cd",
+            padding: 10,
+            borderRadius: 10,
+            textAlign: "center",
+            marginBottom: 15,
+          }}
+        >
+          ⚠ 今日のデータ未入力
+        </div>
+      )}
 
       {/* 合計 */}
       <div
@@ -79,7 +115,6 @@ export default function TablePage() {
               background: isDanger(d) ? "#ffe5e5" : "#f9f9f9",
             }}
           >
-            {/* 上段 */}
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div>{d.date}</div>
               <div style={{ fontSize: 22, fontWeight: "bold" }}>
@@ -87,7 +122,6 @@ export default function TablePage() {
               </div>
             </div>
 
-            {/* 下段 */}
             <div style={{ marginTop: 5 }}>
               肩：
               <span style={{ color: d.shoulder === "×" ? "red" : "green" }}>
