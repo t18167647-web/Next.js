@@ -39,10 +39,26 @@ export default function TablePage() {
       <div style={{ maxWidth:500, margin:"0 auto" }}>
         <h1 style={{textAlign:"center"}}>📊 結果</h1>
 
-        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
-          <button onClick={()=>setIndex(index===0?4:index-1)}>←</button>
-          <b>{player}</b>
-          <button onClick={()=>setIndex((index+1)%5)}>→</button>
+        {/* 🔥 矢印でかく */}
+        <div style={{
+          display:"flex",
+          justifyContent:"space-between",
+          alignItems:"center",
+          marginBottom:15
+        }}>
+          <button onClick={()=>setIndex(index===0?4:index-1)}
+            style={arrowBtn}>
+            ←
+          </button>
+
+          <div style={{ fontSize:20, fontWeight:"bold" }}>
+            {player}
+          </div>
+
+          <button onClick={()=>setIndex((index+1)%5)}
+            style={arrowBtn}>
+            →
+          </button>
         </div>
 
         {!hasToday && (
@@ -65,12 +81,7 @@ export default function TablePage() {
             boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
           }}>
             <button onClick={()=>del(d.i)}
-              style={{
-                float:"right",
-                background:"red",
-                color:"white",
-                borderRadius:8
-              }}>
+              style={delBtn}>
               ✖
             </button>
 
@@ -80,21 +91,38 @@ export default function TablePage() {
           </div>
         ))}
 
-        {/* ナビ */}
+        {/* 🔥 ナビ（文字つき） */}
         <div style={{display:"flex",gap:10,marginTop:20}}>
-          <a href="/"><button style={navBtn("#222")}>🏠</button></a>
-          <a href="/input"><button style={navBtn("#3b82f6")}>✏️</button></a>
-          <a href="/table"><button style={navBtn("#22c55e")}>📊</button></a>
+          <a href="/"><button style={navBtn("#222")}>🏠 ホーム</button></a>
+          <a href="/input"><button style={navBtn("#3b82f6")}>✏️ 入力</button></a>
+          <a href="/table"><button style={navBtn("#22c55e")}>📊 結果</button></a>
         </div>
       </div>
     </div>
   );
 }
 
+const arrowBtn = {
+  padding:"12px 18px",
+  fontSize:20,
+  borderRadius:10,
+  background:"#3b82f6",
+  color:"white"
+};
+
+const delBtn = {
+  float:"right",
+  background:"red",
+  color:"white",
+  borderRadius:8,
+  padding:"5px 8px"
+};
+
 const navBtn = (bg)=>({
   flex:1,
   padding:12,
   borderRadius:12,
   background:bg,
-  color:"white"
+  color:"white",
+  fontWeight:"bold"
 });
