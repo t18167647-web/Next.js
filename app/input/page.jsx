@@ -45,74 +45,116 @@ export default function InputPage() {
           boxShadow:"0 4px 10px rgba(0,0,0,0.05)"
         }}>
 
+          {/* 選手 */}
           <select value={player} onChange={(e)=>setPlayer(e.target.value)}
-            style={{ width:"100%", padding:12, marginBottom:10, borderRadius:10 }}>
+            style={inputStyle}>
             {playersList.map(p=><option key={p}>{p}</option>)}
           </select>
 
+          {/* 日付 */}
           <input type="date" value={date}
             onChange={(e)=>setDate(e.target.value)}
-            style={{ width:"100%", padding:12, marginBottom:10, borderRadius:10 }}/>
+            style={inputStyle}/>
 
+          {/* 球数 */}
           <input type="number" placeholder="球数"
             value={pitches}
             onChange={(e)=>setPitches(e.target.value)}
-            style={{ width:"100%", padding:15, fontSize:20, marginBottom:10, borderRadius:10 }}/>
+            style={{...inputStyle, fontSize:20}}/>
 
-          <div>
-            肩：
-            {["○","△","×"].map(s=>(
-              <button key={s} onClick={()=>setShoulder(s)}
-                style={{
-                  margin:5,
-                  padding:10,
-                  borderRadius:10,
-                  background: shoulder===s ? (s==="×"?"#fecaca":"#bbf7d0"):"#eee"
-                }}>{s}</button>
-            ))}
+          {/* 肩 */}
+          <div style={{ marginTop:10 }}>
+            <div style={label}>肩の状態</div>
+            <div style={btnRow}>
+              {["○","△","×"].map(s=>(
+                <button key={s} onClick={()=>setShoulder(s)}
+                  style={stateBtn(shoulder, s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div>
-            肘：
-            {["○","△","×"].map(s=>(
-              <button key={s} onClick={()=>setElbow(s)}
-                style={{
-                  margin:5,
-                  padding:10,
-                  borderRadius:10,
-                  background: elbow===s ? (s==="×"?"#fecaca":"#bbf7d0"):"#eee"
-                }}>{s}</button>
-            ))}
+          {/* 肘 */}
+          <div style={{ marginTop:10 }}>
+            <div style={label}>肘の状態</div>
+            <div style={btnRow}>
+              {["○","△","×"].map(s=>(
+                <button key={s} onClick={()=>setElbow(s)}
+                  style={stateBtn(elbow, s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <button onClick={saveData}
-            style={{
-              width:"100%",
-              padding:15,
-              marginTop:10,
-              borderRadius:15,
-              background:"#3b82f6",
-              color:"white"
-            }}>
+          {/* 保存 */}
+          <button onClick={saveData} style={saveBtn}>
             保存
           </button>
         </div>
 
-        {/* ナビ */}
+        {/* ナビ（文字付き） */}
         <div style={{display:"flex",gap:10,marginTop:20}}>
-          <a href="/"><button style={navBtn("#222")}>🏠</button></a>
-          <a href="/input"><button style={navBtn("#3b82f6")}>✏️</button></a>
-          <a href="/table"><button style={navBtn("#22c55e")}>📊</button></a>
+          <a href="/"><button style={navBtn("#222")}>🏠 ホーム</button></a>
+          <a href="/input"><button style={navBtn("#3b82f6")}>✏️ 入力</button></a>
+          <a href="/table"><button style={navBtn("#22c55e")}>📊 結果</button></a>
         </div>
       </div>
     </div>
   );
 }
 
+/* ---------- スタイル ---------- */
+
+const inputStyle = {
+  width:"100%",
+  padding:12,
+  marginBottom:10,
+  borderRadius:10
+};
+
+const label = {
+  fontWeight:"bold",
+  marginBottom:5
+};
+
+const btnRow = {
+  display:"flex",
+  gap:10
+};
+
+const stateBtn = (current, val)=>({
+  flex:1,
+  padding:15,
+  fontSize:18,
+  borderRadius:12,
+  fontWeight:"bold",
+  background:
+    current===val
+      ? val==="○"
+        ? "#bbf7d0"
+        : val==="△"
+        ? "#fde68a"
+        : "#fecaca"
+      : "#eee"
+});
+
+const saveBtn = {
+  width:"100%",
+  padding:15,
+  marginTop:15,
+  borderRadius:15,
+  background:"#3b82f6",
+  color:"white",
+  fontSize:16
+};
+
 const navBtn = (bg)=>({
   flex:1,
   padding:12,
   borderRadius:12,
   background:bg,
-  color:"white"
+  color:"white",
+  fontWeight:"bold"
 });
