@@ -2,27 +2,19 @@
 import { useState } from "react";
 
 export default function Page() {
-  const [name, setName] = useState("");
-  const [players, setPlayers] = useState([]);
+  const playerNames = ["熊", "坂田", "末永", "五島", "松尾"];
+
+  const [players, setPlayers] = useState(
+    playerNames.map((name, i) => ({
+      id: i,
+      name,
+      records: {},
+    }))
+  );
 
   const [selectedDate, setSelectedDate] = useState(() => {
     return new Date().toISOString().split("T")[0];
   });
-
-  const addPlayer = () => {
-    if (!name) return;
-
-    setPlayers([
-      ...players,
-      {
-        id: Date.now(),
-        name,
-        records: {},
-      },
-    ]);
-
-    setName("");
-  };
 
   const updateRecord = (id, field, value) => {
     setPlayers(
@@ -75,10 +67,6 @@ export default function Page() {
     return total;
   };
 
-  const deletePlayer = (id) => {
-    setPlayers(players.filter((p) => p.id !== id));
-  };
-
   return (
     <div style={{ padding: "20px" }}>
       <h1>投手管理アプリ</h1>
@@ -90,16 +78,7 @@ export default function Page() {
         onChange={(e) => setSelectedDate(e.target.value)}
       />
 
-      <div style={{ marginTop: "10px" }}>
-        <input
-          placeholder="投手名"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <button onClick={addPlayer}>追加</button>
-      </div>
-
-      {/* 一覧表（ここが新しく追加した部分） */}
+      {/* 一覧表 */}
       <h2 style={{ marginTop: "20px" }}>一覧</h2>
       <table border="1" cellPadding="5">
         <thead>
@@ -127,7 +106,7 @@ export default function Page() {
         </tbody>
       </table>
 
-      {/* 個別入力エリア */}
+      {/* 個別入力 */}
       {players.map((p) => {
         const record = getRecord(p);
 
@@ -185,13 +164,6 @@ export default function Page() {
                 </button>
               ))}
             </div>
-
-            <button
-              onClick={() => deletePlayer(p.id)}
-              style={{ marginTop: "10px" }}
-            >
-              削除
-            </button>
           </div>
         );
       })}
