@@ -22,30 +22,13 @@ export default function Home() {
         </p>
 
         <Link href="/input">
-          <button style={{
-            width: "100%",
-            padding: 18,
-            fontSize: 18,
-            marginBottom: 15,
-            borderRadius: 20,
-            background: "#3b82f6",
-            color: "white",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
-          }}>
+          <button style={mainBtn("#3b82f6")}>
             ✏️ 入力する
           </button>
         </Link>
 
         <Link href="/table">
-          <button style={{
-            width: "100%",
-            padding: 18,
-            fontSize: 18,
-            borderRadius: 20,
-            background: "#22c55e",
-            color: "white",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
-          }}>
+          <button style={mainBtn("#22c55e")}>
             📊 結果を見る
           </button>
         </Link>
@@ -53,3 +36,14 @@ export default function Home() {
     </div>
   );
 }
+
+const mainBtn = (bg) => ({
+  width: "100%",
+  padding: 18,
+  fontSize: 18,
+  marginBottom: 15,
+  borderRadius: 20,
+  background: bg,
+  color: "white",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+});
