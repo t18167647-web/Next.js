@@ -1,30 +1,34 @@
 "use client";
-import Link from "next/link";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { db } from "../../lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
+
+export default function TablePage() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "pitch_data"));
+      const list = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setData(list);
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <div style={bg}>
-      <div style={card}>
-        <h1 style={title}>⚾ 投手管理アプリ</h1>
+    <div style={{ padding: 20 }}>
+      <h1>一覧</h1>
 
-        <Link href="/input">
-          <button style={btn}>✏️ 入力ページ</button>
-        </Link>
-
-        <Link href="/table">
-          <button style={btn}>📊 結果を見る</button>
-        </Link>
-      </div>
+      {data.map((item) => (
+        <div key={item.id}>
+          {item.name} : {item.score}
+        </div>
+      ))}
     </div>
   );
 }
-
-const bg={minHeight:"100vh",display:"flex",justifyContent:"center",alignItems:"center",
-background:"linear-gradient(135deg,#bfdbfe,#dcfce7)"};
-
-const card={background:"white",padding:40,borderRadius:20,textAlign:"center"};
-
-const title={marginBottom:30};
-
-const btn={width:200,height:60,fontSize:18,margin:10,
-background:"#3b82f6",color:"white",border:"none",borderRadius:10};
