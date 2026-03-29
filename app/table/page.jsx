@@ -1,206 +1,184 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { db } from "../lib/firebase";
+import {
+collection,
+addDoc,
+getDocs,
+deleteDoc,
+doc,
+updateDoc
+} from "firebase/firestore";
 
-export default function TablePage(){
-  const [data,setData]=useState([]);
-  const [players,setPlayers]=useState([]);
-  const [index,setIndex]=useState(0);
+export default function TablePage() {
+const [data, setData] = useState([]);
+const [coachComments, setCoachComments] = useState({});
 
-  const [messages,setMessages]=useState({});
-  const [inputs,setInputs]=useState({});
+// 🔽 データ取得
+const fetchData = async () => {
+const snapshot = await getDocs(collection(db, "pitchData"));
+const list = snapshot.docs.map(doc => ({
+id: doc.id,
+...doc.data()
+}));
+setData(list);
+};
 
-  useEffect(()=>{
-    try{
-      setData(JSON.parse(localStorage.getItem("pitchData")||"[]"));
-      setPlayers(JSON.parse(localStorage.getItem("players")||"[]"));
-      setMessages(JSON.parse(localStorage.getItem("messages")||"{}"));
-    }catch{
-      setData([]);
-      setPlayers([]);
-      setMessages({});
-    }
-  },[]);
+useEffect(() => {
+fetchData();
+}, []);
 
-  if(players.length===0){
-    return <div style={{padding:20}}>選手がいません</div>;
-  }
+// 🔽 削除
+const deleteData = async (id) => {
+await deleteDoc(doc(db, "pitchData", id));
+fetchData();
+};
 
-  const player=players[index];
-  const filtered=data.filter(d=>d && d.player===player);
+// 🔽 コメント変更
+const handleCommentChange = (id, value) => {
+setCoachComments({
+...coachComments,
+[id]: value
+});
+};
 
-  const getId=(d,i)=>`${d.player}-${d.date}-${i}`;
+// 🔽 コメント保存
+const saveComment = async (id) => {
+const comment = coachComments[id] || "";
+await updateDoc(doc(db, "pitchData", id), {
+coachComment: comment
+});
+alert("コメント保存！");
+fetchData();
+};
 
-  const handleChange=(id,value)=>{
-    setInputs(prev=>({...prev,[id]:value}));
-  };
+return ( <div style={bg}> <div style={container}>
 
-  const send=(id)=>{
-    const text = inputs[id];
-    if(!text) return;
+```
+    {/* 上に固定ボタン */}
+    <div style={topBar}>
+      <button onClick={() => location.href = "/input"} style={navBtn}>
+        ← 入力へ
+      </button>
+    </div>
 
-    const updated={...messages};
+    <h1 style={title}>📊 結果</h1>
 
-    if(!updated[id]) updated[id]=[];
+    {data.length === 0 && <p>データなし</p>}
 
-    updated[id].push({
-      text,
-      time:new Date().toLocaleString()
-    });
+    {data.map((d) => (
+      <div key={d.id} style={card}>
 
-    setMessages(updated);
-    localStorage.setItem("messages",JSON.stringify(updated));
-    setInputs(prev=>({...prev,[id]:""}));
-  };
-
-  // ⭐ 削除機能
-  const deleteData=(target)=>{
-    if(!confirm("削除する？")) return;
-
-    const newData = data.filter(d=>d !== target);
-    setData(newData);
-    localStorage.setItem("pitchData",JSON.stringify(newData));
-
-    // コメントも削除
-    const newMessages={...messages};
-    Object.keys(newMessages).forEach(key=>{
-      if(key.includes(target.date)) delete newMessages[key];
-    });
-    setMessages(newMessages);
-    localStorage.setItem("messages",JSON.stringify(newMessages));
-  };
-
-  return(
-    <div style={bg}>
-      <div style={card}>
-
-        {/* ナビ */}
-        <div style={nav}>
-          <Link href="/"><button>🏠</button></Link>
-
-          <div>
-            <button onClick={()=>setIndex((index-1+players.length)%players.length)}>◀</button>
-            <span style={{margin:"0 10px",fontWeight:"bold"}}>{player}</span>
-            <button onClick={()=>setIndex((index+1)%players.length)}>▶</button>
-          </div>
-
-          <Link href="/input"><button>✏️</button></Link>
+        <div style={row}>
+          <b>{d.player}</b>
+          <span>{d.date}</span>
         </div>
 
-        <h2>📊 結果</h2>
+        <div>球数：{d.pitches}</div>
+        <div>種類：{d.type}</div>
 
-        {filtered.map((d,i)=>{
-          const id = getId(d,i);
-          const msgs = messages[id] || [];
+        {/* 👇 わかりやすく表示 */}
+        <div>肩：{d.shoulder}</div>
+        <div>肘：{d.elbow}</div>
 
-          return(
-            <div key={id} style={item}>
+        <div>コメント：{d.comment}</div>
 
-              {/* 上段 */}
-              <div style={{display:"flex",justifyContent:"space-between"}}>
-                <div>
-                  <div style={{fontWeight:"bold"}}>
-                    {d.date} / {d.type}
-                  </div>
-                  <div style={{fontSize:20}}>
-                    {d.pitches}球
-                  </div>
-                </div>
+        {/* 👇 指導者コメント */}
+        <div style={label}>指導者コメント</div>
+        <textarea
+          value={coachComments[d.id] ?? d.coachComment ?? ""}
+          onChange={(e) =>
+            handleCommentChange(d.id, e.target.value)
+          }
+          style={textarea}
+        />
 
-                <button onClick={()=>deleteData(d)} style={deleteBtn}>
-                  🗑
-                </button>
-              </div>
-
-              {/* 🔥 肩・肘 */}
-              <div style={{marginTop:10}}>
-                <span style={label}>肩:</span>
-                <span style={mark(d.shoulder)}>{d.shoulder}</span>
-
-                <span style={label}>肘:</span>
-                <span style={mark(d.elbow)}>{d.elbow}</span>
-              </div>
-
-              <div style={{marginTop:5}}>
-                {d.comment}
-              </div>
-
-              {/* コメント */}
-              <div style={chatBox}>
-                {msgs.map((m,idx)=>(
-                  <div key={idx} style={msg}>
-                    {m.text}
-                    <div style={time}>{m.time}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* 入力 */}
-              <div style={{display:"flex",gap:5}}>
-                <input
-                  value={inputs[id] || ""}
-                  onChange={(e)=>handleChange(id,e.target.value)}
-                  placeholder="指導コメント"
-                  style={{flex:1}}
-                />
-                <button onClick={()=>send(id)}>送信</button>
-              </div>
-
-            </div>
-          );
-        })}
+        <div style={btnRow}>
+          <button onClick={() => saveComment(d.id)} style={saveBtn}>
+            保存
+          </button>
+          <button onClick={() => deleteData(d.id)} style={deleteBtn}>
+            削除
+          </button>
+        </div>
 
       </div>
-    </div>
-  );
+    ))}
+  </div>
+</div>
+```
+
+);
 }
 
-/* ===== style ===== */
-
-const bg={padding:20,background:"#eef"};
-
-const card={maxWidth:600,margin:"auto"};
-
-const nav={display:"flex",justifyContent:"space-between",marginBottom:10};
-
-const item={
-  background:"white",
-  padding:15,
-  borderRadius:15,
-  marginBottom:10,
-  boxShadow:"0 5px 10px rgba(0,0,0,0.1)"
+/* ===== スタイル ===== */
+const bg = {
+minHeight: "100vh",
+background: "linear-gradient(135deg,#dbeafe,#f0fdf4)",
+padding: 20
 };
 
-const label={
-  fontWeight:"bold",
-  marginRight:5
+const container = {
+maxWidth: 600,
+margin: "0 auto"
 };
 
-const mark=(v)=>({
-  marginRight:15,
-  fontSize:20,
-  color:v==="○"?"blue":v==="△"?"orange":"red"
-});
-
-const deleteBtn={
-  background:"#ef4444",
-  color:"white",
-  borderRadius:10,
-  padding:"5px 10px"
+const title = {
+textAlign: "center",
+marginBottom: 20
 };
 
-const chatBox={
-  marginTop:10,
-  padding:10,
-  background:"#f1f5f9",
-  borderRadius:10
+const card = {
+background: "white",
+padding: 15,
+borderRadius: 15,
+marginBottom: 15,
+boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
 };
 
-const msg={
-  background:"#fee2e2",
-  padding:8,
-  borderRadius:8,
-  marginBottom:5
+const row = {
+display: "flex",
+justifyContent: "space-between",
+marginBottom: 5
 };
 
-const time={fontSize:10};
+const label = {
+marginTop: 10,
+fontWeight: "bold"
+};
+
+const textarea = {
+width: "100%",
+minHeight: 60,
+marginTop: 5
+};
+
+const btnRow = {
+display: "flex",
+gap: 10,
+marginTop: 10
+};
+
+const saveBtn = {
+flex: 1,
+background: "#3b82f6",
+color: "white",
+height: 40
+};
+
+const deleteBtn = {
+flex: 1,
+background: "#ef4444",
+color: "white",
+height: 40
+};
+
+const topBar = {
+marginBottom: 10
+};
+
+const navBtn = {
+background: "#333",
+color: "white",
+padding: "8px 12px"
+};
