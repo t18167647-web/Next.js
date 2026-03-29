@@ -3,12 +3,8 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div style={{
-      minHeight:"100vh",
-      background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
-      padding:20
-    }}>
-      <div style={{maxWidth:500,margin:"0 auto",textAlign:"center"}}>
+    <div style={bg}>
+      <div style={container}>
         <h1 style={{fontSize:28}}>⚾ 投手管理</h1>
 
         <Link href="/input">
@@ -23,11 +19,6 @@ export default function Home() {
   );
 }
 
-const btn=(bg)=>({
-  width:"100%",
-  padding:18,
-  marginBottom:15,
-  borderRadius:20,
-  background:bg,
-  color:"white"
-});
+const bg={minHeight:"100vh",background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",padding:20};
+const container={maxWidth:500,margin:"0 auto",textAlign:"center"};
+const btn=(bg)=>({width:"100%",padding:18,marginBottom:15,borderRadius:20,background:bg,color:"white"});
