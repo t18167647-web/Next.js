@@ -10,29 +10,47 @@ export default function TablePage() {
   const [text,setText]=useState("");
   const [role,setRole]=useState("監督");
 
-  const player=players[index];
+  const player=players[index] || "";
 
   useEffect(()=>{
-    setPlayers(JSON.parse(localStorage.getItem("players")||"[]"));
-    setData(JSON.parse(localStorage.getItem("pitchData")||"[]"));
-    setMessages(JSON.parse(localStorage.getItem("messages")||"[]"));
+    const p = JSON.parse(localStorage.getItem("players")||"[]");
+    const d = JSON.parse(localStorage.getItem("pitchData")||"[]");
+    const m = JSON.parse(localStorage.getItem("messages")||"[]");
+
+    setPlayers(p);
+    setData(d);
+    setMessages(m);
   },[]);
 
-  if(!players.length) return null;
+  if(!players.length){
+    return <div style={{padding:20}}>選手データがありません</div>;
+  }
 
-  const filtered=data.filter(d=>d.player===player);
+  // データ
+  const filtered=data
+    .filter(d=>d && d.player===player)
+    .sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-  const playerMessages=messages.filter(m=>m.player===player);
+  // チャット
+  const playerMessages=messages.filter(m=>m && m.player===player);
 
+  // 未読
   const lastSeen=localStorage.getItem("seen_"+player);
-  const hasUnread=playerMessages.some(m=>!lastSeen || new Date(m.time)>new Date(lastSeen));
+  const hasUnread=playerMessages.some(m=>{
+    if(!m.time) return false;
+    if(!lastSeen) return true;
+    return new Date(m.time) > new Date(lastSeen);
+  });
 
   useEffect(()=>{
-    localStorage.setItem("seen_"+player,new Date().toISOString());
+    if(player){
+      localStorage.setItem("seen_"+player,new Date().toISOString());
+    }
   },[player]);
 
+  // 送信
   const send=()=>{
-    if(!text) return;
+    if(!text.trim()) return;
 
     const newMsg={
       player,
@@ -47,27 +65,60 @@ export default function TablePage() {
     setText("");
   };
 
+  // 色
   const typeColor=(type)=>{
     if(type==="ブルペン") return "#e0f2fe";
     if(type==="実戦練習") return "#fef9c3";
     if(type==="試合") return "#fee2e2";
+    return "#fff";
   };
 
   return (
     <div style={bg}>
       <div style={container}>
-        <h1>結果</h1>
+        <h1 style={{textAlign:"center"}}>📊 結果</h1>
 
-        {hasUnread && <div style={{color:"red"}}>● 未読あり</div>}
+        {/* 未読 */}
+        {hasUnread && (
+          <div style={unread}>● 未読あり</div>
+        )}
 
-        <button onClick={()=>setIndex(index===0?players.length-1:index-1)}>←</button>
-        {player}
-        <button onClick={()=>setIndex((index+1)%players.length)}>→</button>
+        {/* 切替 */}
+        <div style={switchBox}>
+          <button onClick={()=>setIndex(index===0?players.length-1:index-1)}>←</button>
+
+          <div style={{fontWeight:"bold"}}>{player}</div>
+
+          <button onClick={()=>setIndex((index+1)%players.length)}>→</button>
+        </div>
 
         {/* データ */}
+        {filtered.length===0 && (
+          <div style={empty}>データなし</div>
+        )}
+
         {filtered.map((d,i)=>(
-          <div key={i} style={{background:typeColor(d.type),padding:10,marginTop:10}}>
-            {d.date} / {d.pitches}球 / {d.type}
+          <div key={i} style={{
+            ...card,
+            background:typeColor(d.type)
+          }}>
+            <div style={row}>
+              <div>{d.date || "-"}</div>
+              <div style={pitch}>{d.pitches || 0}球</div>
+            </div>
+
+            <div style={type}>{d.type || "-"}</div>
+
+            <div style={row}>
+              <div>肩：{d.shoulder || "-"}</div>
+              <div>肘：{d.elbow || "-"}</div>
+            </div>
+
+            {d.comment && (
+              <div style={comment}>
+                💬 {d.comment}
+              </div>
+            )}
           </div>
         ))}
 
@@ -79,27 +130,106 @@ export default function TablePage() {
               alignSelf:m.role==="監督"?"flex-end":"flex-start",
               background:m.role==="監督"?"#fee2e2":"#dbeafe"
             }}>
-              {m.text}
+              <div>{m.text}</div>
             </div>
           ))}
         </div>
 
-        <div style={{display:"flex"}}>
+        {/* 入力 */}
+        <div style={inputBox}>
           <select value={role} onChange={(e)=>setRole(e.target.value)}>
             <option>監督</option>
             <option>選手</option>
           </select>
 
-          <input value={text} onChange={(e)=>setText(e.target.value)} style={{flex:1}}/>
+          <input
+            value={text}
+            onChange={(e)=>setText(e.target.value)}
+            placeholder="コメント"
+            style={{flex:1}}
+          />
+
           <button onClick={send}>送信</button>
         </div>
+
       </div>
     </div>
   );
 }
 
-const bg={padding:20};
+/* style */
+
+const bg={
+  minHeight:"100vh",
+  background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
+  padding:20
+};
+
 const container={maxWidth:500,margin:"0 auto"};
 
-const chatBox={height:200,overflow:"auto",display:"flex",flexDirection:"column",gap:5};
-const msg={padding:10,borderRadius:10,maxWidth:"70%"};
+const switchBox={
+  display:"flex",
+  justifyContent:"space-between",
+  marginBottom:10
+};
+
+const unread={
+  color:"red",
+  fontWeight:"bold",
+  marginBottom:10
+};
+
+const empty={
+  textAlign:"center",
+  marginBottom:10
+};
+
+const card={
+  padding:12,
+  borderRadius:12,
+  marginBottom:10
+};
+
+const row={
+  display:"flex",
+  justifyContent:"space-between"
+};
+
+const pitch={
+  fontWeight:"bold",
+  fontSize:18
+};
+
+const type={
+  marginTop:5,
+  fontWeight:"bold"
+};
+
+const comment={
+  marginTop:5,
+  fontSize:14
+};
+
+const chatBox={
+  height:200,
+  overflowY:"auto",
+  display:"flex",
+  flexDirection:"column",
+  gap:8,
+  marginTop:10,
+  background:"#fff",
+  padding:10,
+  borderRadius:10
+};
+
+const msg={
+  padding:10,
+  borderRadius:10,
+  maxWidth:"70%"
+};
+
+const inputBox={
+  display:"flex",
+  gap:5,
+  marginTop:10
+};
