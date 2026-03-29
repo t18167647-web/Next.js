@@ -71,12 +71,8 @@ export default function TablePage() {
           {weekly>300 && <div style={{color:"red"}}>⚠ 投げすぎ注意</div>}
         </div>
 
-        {/* 未入力 */}
-        {!hasToday && (
-          <div style={warn}>⚠ 今日未入力</div>
-        )}
+        {!hasToday && <div style={warn}>⚠ 今日未入力</div>}
 
-        {/* データ */}
         {filtered.map(d=>(
           <div key={d.i} style={{
             ...card,
@@ -96,8 +92,13 @@ export default function TablePage() {
 
             {/* コメント */}
             {d.comment && (
-              <div style={commentBox}>
-                💬 {d.comment}
+              <div style={{
+                marginTop:10,
+                padding:10,
+                borderRadius:10,
+                background: d.role==="監督" ? "#fee2e2" : "#dbeafe"
+              }}>
+                <strong>{d.role}：</strong> {d.comment}
               </div>
             )}
           </div>
@@ -125,24 +126,16 @@ const switchBox={display:"flex",gap:10,marginBottom:15};
 const arrow={padding:"10px 15px",background:"#3b82f6",color:"white",borderRadius:10};
 const select={flex:1,padding:10};
 
-const warn={background:"#fef3c7",padding:10,borderRadius:10,marginBottom:10,textAlign:"center"};
+const warn={background:"#fef3c7",padding:10,borderRadius:10,textAlign:"center"};
 
-const card={padding:15,borderRadius:15,marginBottom:10,boxShadow:"0 4px 10px rgba(0,0,0,0.05)"};
+const card={padding:15,borderRadius:15,marginBottom:10};
 
-const delBtn={float:"right",background:"red",color:"white",borderRadius:8};
+const delBtn={float:"right",background:"red",color:"white"};
 
 const navBtn=(bg)=>({flex:1,padding:12,borderRadius:12,background:bg,color:"white"});
 
 const state=(s)=>({
   fontSize:26,
   fontWeight:"bold",
-  marginLeft:5,
   color: s==="○"?"#3b82f6":s==="△"?"#facc15":"#ef4444"
 });
-
-const commentBox={
-  marginTop:10,
-  padding:10,
-  background:"#f1f5f9",
-  borderRadius:10
-};
