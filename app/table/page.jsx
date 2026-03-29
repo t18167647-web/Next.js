@@ -1,143 +1,72 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export default function TablePage() {
+export default function TablePage(){
+  const [data,setData]=useState([]);
   const [players,setPlayers]=useState([]);
   const [index,setIndex]=useState(0);
-  const [data,setData]=useState([]);
-  const [messages,setMessages]=useState([]);
-
-  const [text,setText]=useState("");
-  const [role,setRole]=useState("監督");
-
-  const player = players[index] || "";
-
-  // 🔥 安全に読み込む関数
-  const safeLoad = (key) => {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : [];
-    } catch {
-      return [];
-    }
-  };
 
   useEffect(()=>{
-    setPlayers(safeLoad("players"));
-    setData(safeLoad("pitchData"));
-    setMessages(safeLoad("messages"));
+    try{
+      const saved=JSON.parse(localStorage.getItem("pitchData")||"[]");
+      const playerList=JSON.parse(localStorage.getItem("players")||"[]");
+
+      setData(saved);
+      setPlayers(playerList);
+    }catch{
+      setData([]);
+      setPlayers([]);
+    }
   },[]);
 
-  if(players.length === 0){
+  if(players.length===0){
     return <div style={{padding:20}}>選手がいません（入力ページで追加）</div>;
   }
 
-  // データ
-  const filtered = data.filter(d => d && d.player === player);
+  const player=players[index];
 
-  // メッセージ
-  const playerMessages = messages.filter(m => m && m.player === player);
+  const filtered=data.filter(d=>d.player===player);
 
-  // 未読
-  const lastSeen = localStorage.getItem("seen_"+player);
-  const hasUnread = playerMessages.some(m => {
-    if(!m.time) return false;
-    if(!lastSeen) return true;
-    return new Date(m.time) > new Date(lastSeen);
-  });
+  const total=filtered.reduce((sum,d)=>sum+d.pitches,0);
 
-  useEffect(()=>{
-    if(player){
-      localStorage.setItem("seen_"+player,new Date().toISOString());
-    }
-  },[player]);
+  return(
+    <div style={bg}>
+      <div style={card}>
+        <h2>📊 結果</h2>
 
-  const send = () => {
-    if(!text.trim()) return;
-
-    const newMsg = {
-      player,
-      text,
-      role,
-      time:new Date().toISOString()
-    };
-
-    const updated = [...messages, newMsg];
-    setMessages(updated);
-    localStorage.setItem("messages", JSON.stringify(updated));
-    setText("");
-  };
-
-  const typeColor = (type) => {
-    if(type==="ブルペン") return "#e0f2fe";
-    if(type==="実戦練習") return "#fef9c3";
-    if(type==="試合") return "#fee2e2";
-    return "#fff";
-  };
-
-  return (
-    <div style={{padding:20}}>
-      <h1>📊 結果</h1>
-
-      {hasUnread && <div style={{color:"red"}}>● 未読あり</div>}
-
-      {/* 選手切替 */}
-      <div style={{display:"flex",justifyContent:"space-between"}}>
-        <button onClick={()=>setIndex(index===0?players.length-1:index-1)}>←</button>
-        <b>{player}</b>
-        <button onClick={()=>setIndex((index+1)%players.length)}>→</button>
-      </div>
-
-      {/* データ */}
-      {filtered.length === 0 && <div>データなし</div>}
-
-      {filtered.map((d,i)=>(
-        <div key={i} style={{
-          padding:10,
-          marginTop:10,
-          borderRadius:10,
-          background:typeColor(d.type)
-        }}>
-          <div>{d.date || "-"}</div>
-          <div>{d.pitches || 0}球</div>
-          <div>{d.type || "-"}</div>
-          <div>肩:{d.shoulder || "-"} 肘:{d.elbow || "-"}</div>
-          <div>{d.comment}</div>
+        <div style={nav}>
+          <button onClick={()=>setIndex((index-1+players.length)%players.length)}>◀</button>
+          <h3>{player}</h3>
+          <button onClick={()=>setIndex((index+1)%players.length)}>▶</button>
         </div>
-      ))}
 
-      {/* チャット */}
-      <div style={{
-        height:200,
-        overflow:"auto",
-        background:"#fff",
-        marginTop:10,
-        padding:10
-      }}>
-        {playerMessages.map((m,i)=>(
-          <div key={i} style={{
-            textAlign:m.role==="監督"?"right":"left"
-          }}>
-            {m.text}
+        <div>週間合計: {total}球 {total>300 && "⚠️多い！"}</div>
+
+        {filtered.map((d,i)=>(
+          <div key={i} style={item}>
+            <div>{d.date} / {d.type}</div>
+            <div>{d.pitches}球</div>
+            <div>
+              <span style={mark(d.shoulder)}>{d.shoulder}</span>
+              <span style={mark(d.elbow)}>{d.elbow}</span>
+            </div>
+            <div>{d.comment}</div>
           </div>
         ))}
-      </div>
-
-      {/* 入力 */}
-      <div style={{display:"flex",marginTop:10}}>
-        <select value={role} onChange={(e)=>setRole(e.target.value)}>
-          <option>監督</option>
-          <option>選手</option>
-        </select>
-
-        <input
-          value={text}
-          onChange={(e)=>setText(e.target.value)}
-          style={{flex:1}}
-        />
-
-        <button onClick={send}>送信</button>
       </div>
     </div>
   );
 }
+
+const bg={minHeight:"100vh",padding:20,background:"#eef"};
+const card={maxWidth:600,margin:"auto",background:"white",padding:20,borderRadius:20};
+
+const nav={display:"flex",justifyContent:"space-between",alignItems:"center"};
+
+const item={borderBottom:"1px solid #ccc",padding:10};
+
+const mark=(v)=>({
+  marginRight:10,
+  fontSize:20,
+  color:v==="○"?"blue":v==="△"?"orange":"red"
+});
