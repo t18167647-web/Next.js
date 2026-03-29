@@ -64,7 +64,8 @@ export default function InputPage() {
 
           {/* 選手追加 */}
           <div style={{display:"flex",gap:10,marginBottom:10}}>
-            <input value={newPlayer}
+            <input
+              value={newPlayer}
               onChange={(e)=>setNewPlayer(e.target.value)}
               placeholder="選手追加"
               style={{flex:1,padding:10}}
@@ -72,30 +73,39 @@ export default function InputPage() {
             <button onClick={addPlayer}>追加</button>
           </div>
 
+          {/* 選択 */}
           <select value={player} onChange={(e)=>setPlayer(e.target.value)} style={input}>
             {players.map(p=><option key={p}>{p}</option>)}
           </select>
 
           <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} style={input}/>
-          <input type="number" placeholder="球数" value={pitches}
-            onChange={(e)=>setPitches(e.target.value)} style={input}/>
+          <input type="number" placeholder="球数"
+            value={pitches}
+            onChange={(e)=>setPitches(e.target.value)}
+            style={input}
+          />
 
-          {/* 状態 */}
+          {/* 肩 */}
           <div style={row}>
             {["○","△","×"].map(s=>(
-              <button key={s} onClick={()=>setShoulder(s)} style={stateBtn(shoulder,s)}>{s}</button>
+              <button key={s} onClick={()=>setShoulder(s)} style={stateBtn(shoulder,s)}>
+                {s}
+              </button>
             ))}
           </div>
 
+          {/* 肘 */}
           <div style={row}>
             {["○","△","×"].map(s=>(
-              <button key={s} onClick={()=>setElbow(s)} style={stateBtn(elbow,s)}>{s}</button>
+              <button key={s} onClick={()=>setElbow(s)} style={stateBtn(elbow,s)}>
+                {s}
+              </button>
             ))}
           </div>
 
-          {/* 🔥 コメント */}
+          {/* コメント */}
           <textarea
-            placeholder="コメント（監督・選手どちらでも）"
+            placeholder="コメント（監督・選手）"
             value={comment}
             onChange={(e)=>setComment(e.target.value)}
             style={textarea}
@@ -103,6 +113,14 @@ export default function InputPage() {
 
           <button onClick={saveData} style={saveBtn}>保存</button>
         </div>
+
+        {/* ナビ */}
+        <div style={{display:"flex",gap:10,marginTop:20}}>
+          <a href="/"><button style={navBtn("#222")}>🏠 ホーム</button></a>
+          <a href="/input"><button style={navBtn("#3b82f6")}>✏️ 入力</button></a>
+          <a href="/table"><button style={navBtn("#22c55e")}>📊 結果</button></a>
+        </div>
+
       </div>
     </div>
   );
@@ -134,3 +152,5 @@ const stateBtn=(current,val)=>({
 });
 
 const saveBtn={width:"100%",padding:15,background:"#3b82f6",color:"white",borderRadius:15};
+
+const navBtn=(bg)=>({flex:1,padding:12,borderRadius:12,background:bg,color:"white"});
