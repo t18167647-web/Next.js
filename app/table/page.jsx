@@ -8,13 +8,17 @@ export default function TablePage(){
   const [index,setIndex]=useState(0);
 
   const [messages,setMessages]=useState({});
-  const [text,setText]=useState("");
+  const [inputs,setInputs]=useState({});
 
   useEffect(()=>{
     try{
-      setData(JSON.parse(localStorage.getItem("pitchData")||"[]"));
-      setPlayers(JSON.parse(localStorage.getItem("players")||"[]"));
-      setMessages(JSON.parse(localStorage.getItem("messages")||"{}"));
+      const d = JSON.parse(localStorage.getItem("pitchData")||"[]");
+      const p = JSON.parse(localStorage.getItem("players")||"[]");
+      const m = JSON.parse(localStorage.getItem("messages")||"{}");
+
+      setData(Array.isArray(d)?d:[]);
+      setPlayers(Array.isArray(p)?p:[]);
+      setMessages(m && typeof m==="object"?m:{});
     }catch{
       setData([]);
       setPlayers([]);
@@ -27,24 +31,34 @@ export default function TablePage(){
   }
 
   const player=players[index];
-  const filtered=data.filter(d=>d.player===player);
+  const filtered=data.filter(d=>d && d.player===player);
 
-  // ⭐ コメント送信（記録ごと）
-  const send=(i)=>{
+  // ⭐ 安全ID生成
+  const getId=(d,i)=>`${d.player}-${d.date}-${i}`;
+
+  // ⭐ 入力変更
+  const handleChange=(id,value)=>{
+    setInputs(prev=>({...prev,[id]:value}));
+  };
+
+  // ⭐ コメント送信
+  const send=(id)=>{
+    const text = inputs[id];
     if(!text) return;
 
     const updated={...messages};
 
-    if(!updated[i]) updated[i]=[];
+    if(!updated[id]) updated[id]=[];
 
-    updated[i].push({
+    updated[id].push({
       text,
       time:new Date().toLocaleString()
     });
 
     setMessages(updated);
     localStorage.setItem("messages",JSON.stringify(updated));
-    setText("");
+
+    setInputs(prev=>({...prev,[id]:""}));
   };
 
   return(
@@ -57,7 +71,7 @@ export default function TablePage(){
 
           <div>
             <button onClick={()=>setIndex((index-1+players.length)%players.length)}>◀</button>
-            <span style={{margin:"0 10px"}}>{player}</span>
+            <span style={{margin:"0 10px",fontWeight:"bold"}}>{player}</span>
             <button onClick={()=>setIndex((index+1)%players.length)}>▶</button>
           </div>
 
@@ -66,56 +80,62 @@ export default function TablePage(){
 
         <h2>📊 結果</h2>
 
-        {filtered.map((d,i)=>(
-          <div key={i} style={item}>
+        {filtered.map((d,i)=>{
+          const id = getId(d,i);
+          const msgs = messages[id] || [];
 
-            <div style={{fontWeight:"bold"}}>
-              {d.date} / {d.type}
+          return(
+            <div key={id} style={item}>
+
+              <div style={{fontWeight:"bold"}}>
+                {d.date || "-"} / {d.type || "-"}
+              </div>
+
+              <div style={{fontSize:20}}>
+                {d.pitches || 0}球
+              </div>
+
+              <div>
+                <span style={mark(d.shoulder)}>{d.shoulder || "-"}</span>
+                <span style={mark(d.elbow)}>{d.elbow || "-"}</span>
+              </div>
+
+              <div>{d.comment || ""}</div>
+
+              {/* コメント表示 */}
+              <div style={chatBox}>
+                {msgs.map((m,idx)=>(
+                  <div key={idx} style={msg}>
+                    {m.text}
+                    <div style={time}>{m.time}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 入力 */}
+              <div style={{display:"flex",gap:5}}>
+                <input
+                  value={inputs[id] || ""}
+                  onChange={(e)=>handleChange(id,e.target.value)}
+                  placeholder="指導コメント"
+                  style={{flex:1}}
+                />
+                <button onClick={()=>send(id)}>送信</button>
+              </div>
+
             </div>
-
-            <div style={{fontSize:20}}>
-              {d.pitches}球
-            </div>
-
-            <div>
-              <span style={mark(d.shoulder)}>{d.shoulder}</span>
-              <span style={mark(d.elbow)}>{d.elbow}</span>
-            </div>
-
-            <div>{d.comment}</div>
-
-            {/* 🔥 コメント履歴 */}
-            <div style={chatBox}>
-              {(messages[i]||[]).map((m,idx)=>(
-                <div key={idx} style={msg}>
-                  {m.text}
-                  <div style={time}>{m.time}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* 入力 */}
-            <div style={{display:"flex",gap:5}}>
-              <input
-                value={text}
-                onChange={(e)=>setText(e.target.value)}
-                placeholder="指導コメント"
-                style={{flex:1}}
-              />
-              <button onClick={()=>send(i)}>送信</button>
-            </div>
-
-          </div>
-        ))}
+          );
+        })}
 
       </div>
     </div>
   );
 }
 
-/* style */
+/* ===== style ===== */
 
 const bg={padding:20,background:"#eef"};
+
 const card={maxWidth:600,margin:"auto"};
 
 const nav={display:"flex",justifyContent:"space-between",marginBottom:10};
