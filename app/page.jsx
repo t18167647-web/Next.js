@@ -4,21 +4,27 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div style={bg}>
-      <div style={container}>
-        <h1 style={{fontSize:28}}>⚾ 投手管理</h1>
+      <div style={card}>
+        <h1 style={title}>⚾ 投手管理アプリ</h1>
 
         <Link href="/input">
-          <button style={btn("#3b82f6")}>✏️ 入力</button>
+          <button style={btn}>✏️ 入力ページ</button>
         </Link>
 
         <Link href="/table">
-          <button style={btn("#22c55e")}>📊 結果</button>
+          <button style={btn}>📊 結果を見る</button>
         </Link>
       </div>
     </div>
   );
 }
 
-const bg={minHeight:"100vh",background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",padding:20};
-const container={maxWidth:500,margin:"0 auto",textAlign:"center"};
-const btn=(bg)=>({width:"100%",padding:18,marginBottom:15,borderRadius:20,background:bg,color:"white"});
+const bg={minHeight:"100vh",display:"flex",justifyContent:"center",alignItems:"center",
+background:"linear-gradient(135deg,#bfdbfe,#dcfce7)"};
+
+const card={background:"white",padding:40,borderRadius:20,textAlign:"center"};
+
+const title={marginBottom:30};
+
+const btn={width:200,height:60,fontSize:18,margin:10,
+background:"#3b82f6",color:"white",border:"none",borderRadius:10};
