@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function InputPage() {
   const defaultPlayers=["熊","坂田","末永","五島","松尾"];
@@ -66,6 +67,13 @@ export default function InputPage() {
   return (
     <div style={bg}>
       <div style={card}>
+
+        {/* 🔥 ナビ */}
+        <div style={nav}>
+          <Link href="/"><button>🏠 ホーム</button></Link>
+          <Link href="/table"><button>📊 結果</button></Link>
+        </div>
+
         <h1>✏️ 入力</h1>
 
         <div style={row}>
@@ -76,52 +84,53 @@ export default function InputPage() {
           <button onClick={addPlayer}>追加</button>
         </div>
 
-        <div>選手</div>
         <select value={player} onChange={(e)=>setPlayer(e.target.value)} style={input}>
           {players.map(p=><option key={p}>{p}</option>)}
         </select>
 
-        <div>日付</div>
         <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} style={input}/>
-
-        <div>球数</div>
         <input type="number" value={pitches} onChange={(e)=>setPitches(e.target.value)} style={input}/>
 
-        <div>投球種類</div>
         <select value={type} onChange={(e)=>setType(e.target.value)} style={input}>
           <option>ブルペン</option>
           <option>実戦練習</option>
           <option>試合</option>
         </select>
 
-        <div>肩</div>
         <div style={row}>
           {["○","△","×"].map(s=>(
             <button key={s} onClick={()=>setShoulder(s)} style={stateBtn(shoulder,s)}>{s}</button>
           ))}
         </div>
 
-        <div>肘</div>
         <div style={row}>
           {["○","△","×"].map(s=>(
             <button key={s} onClick={()=>setElbow(s)} style={stateBtn(elbow,s)}>{s}</button>
           ))}
         </div>
 
-        <div>コメント</div>
         <textarea value={comment} onChange={(e)=>setComment(e.target.value)} style={textarea}/>
 
         <button onClick={saveData} style={saveBtn}>保存</button>
+
       </div>
     </div>
   );
 }
 
-const bg={minHeight:"100vh",padding:20,background:"linear-gradient(135deg,#dbeafe,#f0fdf4)"};
+const bg={minHeight:"100vh",padding:20,background:"#eef"};
 const card={maxWidth:500,margin:"auto",background:"white",padding:20,borderRadius:20};
+
+const nav={
+  display:"flex",
+  justifyContent:"space-between",
+  marginBottom:10
+};
+
 const input={width:"100%",height:40,marginBottom:10};
 const textarea={width:"100%",height:80};
 const row={display:"flex",gap:10};
+
 const saveBtn={width:"100%",height:50,background:"#3b82f6",color:"white"};
 
 const stateBtn=(c,v)=>({
