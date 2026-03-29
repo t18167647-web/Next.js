@@ -12,13 +12,9 @@ export default function TablePage(){
 
   useEffect(()=>{
     try{
-      const d = JSON.parse(localStorage.getItem("pitchData")||"[]");
-      const p = JSON.parse(localStorage.getItem("players")||"[]");
-      const m = JSON.parse(localStorage.getItem("messages")||"{}");
-
-      setData(Array.isArray(d)?d:[]);
-      setPlayers(Array.isArray(p)?p:[]);
-      setMessages(m && typeof m==="object"?m:{});
+      setData(JSON.parse(localStorage.getItem("pitchData")||"[]"));
+      setPlayers(JSON.parse(localStorage.getItem("players")||"[]"));
+      setMessages(JSON.parse(localStorage.getItem("messages")||"{}"));
     }catch{
       setData([]);
       setPlayers([]);
@@ -33,15 +29,12 @@ export default function TablePage(){
   const player=players[index];
   const filtered=data.filter(d=>d && d.player===player);
 
-  // ⭐ 安全ID生成
   const getId=(d,i)=>`${d.player}-${d.date}-${i}`;
 
-  // ⭐ 入力変更
   const handleChange=(id,value)=>{
     setInputs(prev=>({...prev,[id]:value}));
   };
 
-  // ⭐ コメント送信
   const send=(id)=>{
     const text = inputs[id];
     if(!text) return;
@@ -57,8 +50,24 @@ export default function TablePage(){
 
     setMessages(updated);
     localStorage.setItem("messages",JSON.stringify(updated));
-
     setInputs(prev=>({...prev,[id]:""}));
+  };
+
+  // ⭐ 削除機能
+  const deleteData=(target)=>{
+    if(!confirm("削除する？")) return;
+
+    const newData = data.filter(d=>d !== target);
+    setData(newData);
+    localStorage.setItem("pitchData",JSON.stringify(newData));
+
+    // コメントも削除
+    const newMessages={...messages};
+    Object.keys(newMessages).forEach(key=>{
+      if(key.includes(target.date)) delete newMessages[key];
+    });
+    setMessages(newMessages);
+    localStorage.setItem("messages",JSON.stringify(newMessages));
   };
 
   return(
@@ -87,22 +96,36 @@ export default function TablePage(){
           return(
             <div key={id} style={item}>
 
-              <div style={{fontWeight:"bold"}}>
-                {d.date || "-"} / {d.type || "-"}
+              {/* 上段 */}
+              <div style={{display:"flex",justifyContent:"space-between"}}>
+                <div>
+                  <div style={{fontWeight:"bold"}}>
+                    {d.date} / {d.type}
+                  </div>
+                  <div style={{fontSize:20}}>
+                    {d.pitches}球
+                  </div>
+                </div>
+
+                <button onClick={()=>deleteData(d)} style={deleteBtn}>
+                  🗑
+                </button>
               </div>
 
-              <div style={{fontSize:20}}>
-                {d.pitches || 0}球
+              {/* 🔥 肩・肘 */}
+              <div style={{marginTop:10}}>
+                <span style={label}>肩:</span>
+                <span style={mark(d.shoulder)}>{d.shoulder}</span>
+
+                <span style={label}>肘:</span>
+                <span style={mark(d.elbow)}>{d.elbow}</span>
               </div>
 
-              <div>
-                <span style={mark(d.shoulder)}>{d.shoulder || "-"}</span>
-                <span style={mark(d.elbow)}>{d.elbow || "-"}</span>
+              <div style={{marginTop:5}}>
+                {d.comment}
               </div>
 
-              <div>{d.comment || ""}</div>
-
-              {/* コメント表示 */}
+              {/* コメント */}
               <div style={chatBox}>
                 {msgs.map((m,idx)=>(
                   <div key={idx} style={msg}>
@@ -144,14 +167,27 @@ const item={
   background:"white",
   padding:15,
   borderRadius:15,
-  marginBottom:10
+  marginBottom:10,
+  boxShadow:"0 5px 10px rgba(0,0,0,0.1)"
+};
+
+const label={
+  fontWeight:"bold",
+  marginRight:5
 };
 
 const mark=(v)=>({
-  marginRight:10,
+  marginRight:15,
   fontSize:20,
   color:v==="○"?"blue":v==="△"?"orange":"red"
 });
+
+const deleteBtn={
+  background:"#ef4444",
+  color:"white",
+  borderRadius:10,
+  padding:"5px 10px"
+};
 
 const chatBox={
   marginTop:10,
