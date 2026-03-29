@@ -19,7 +19,7 @@ export default function InputPage() {
   useEffect(()=>{
     try{
       const saved=JSON.parse(localStorage.getItem("players"));
-      if(saved && saved.length>0){
+      if(saved && saved.length){
         setPlayers(saved);
         setPlayer(saved[0]);
       }else{
@@ -43,7 +43,7 @@ export default function InputPage() {
   };
 
   const saveData=()=>{
-    if(!pitches || !player) return;
+    if(!pitches) return;
 
     const newData={
       player,
@@ -68,74 +68,130 @@ export default function InputPage() {
     <div style={bg}>
       <div style={card}>
 
-        {/* 🔥 ナビ */}
+        {/* ナビ */}
         <div style={nav}>
-          <Link href="/"><button>🏠 ホーム</button></Link>
-          <Link href="/table"><button>📊 結果</button></Link>
+          <Link href="/"><button style={navBtn}>🏠 ホーム</button></Link>
+          <Link href="/table"><button style={navBtn}>📊 結果</button></Link>
         </div>
 
-        <h1>✏️ 入力</h1>
+        <h1 style={title}>✏️ 入力</h1>
 
+        {/* 選手追加 */}
         <div style={row}>
           <input value={newPlayer}
             onChange={(e)=>setNewPlayer(e.target.value)}
             placeholder="選手追加"
             style={input}/>
-          <button onClick={addPlayer}>追加</button>
+          <button onClick={addPlayer} style={addBtn}>追加</button>
         </div>
 
+        {/* 選手 */}
+        <div style={label}>選手</div>
         <select value={player} onChange={(e)=>setPlayer(e.target.value)} style={input}>
           {players.map(p=><option key={p}>{p}</option>)}
         </select>
 
+        {/* 日付 */}
+        <div style={label}>日付</div>
         <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} style={input}/>
+
+        {/* 球数 */}
+        <div style={label}>球数</div>
         <input type="number" value={pitches} onChange={(e)=>setPitches(e.target.value)} style={input}/>
 
+        {/* 種類 */}
+        <div style={label}>投球種類</div>
         <select value={type} onChange={(e)=>setType(e.target.value)} style={input}>
           <option>ブルペン</option>
           <option>実戦練習</option>
           <option>試合</option>
         </select>
 
+        {/* 🔥 肩 */}
+        <div style={label}>肩の状態</div>
         <div style={row}>
           {["○","△","×"].map(s=>(
-            <button key={s} onClick={()=>setShoulder(s)} style={stateBtn(shoulder,s)}>{s}</button>
+            <button key={s} onClick={()=>setShoulder(s)} style={stateBtn(shoulder,s)}>
+              {s}
+            </button>
           ))}
         </div>
 
+        {/* 🔥 肘 */}
+        <div style={label}>肘の状態</div>
         <div style={row}>
           {["○","△","×"].map(s=>(
-            <button key={s} onClick={()=>setElbow(s)} style={stateBtn(elbow,s)}>{s}</button>
+            <button key={s} onClick={()=>setElbow(s)} style={stateBtn(elbow,s)}>
+              {s}
+            </button>
           ))}
         </div>
 
+        {/* コメント */}
+        <div style={label}>コメント</div>
         <textarea value={comment} onChange={(e)=>setComment(e.target.value)} style={textarea}/>
 
-        <button onClick={saveData} style={saveBtn}>保存</button>
+        <button onClick={saveData} style={saveBtn}>保存する</button>
 
       </div>
     </div>
   );
 }
 
-const bg={minHeight:"100vh",padding:20,background:"#eef"};
-const card={maxWidth:500,margin:"auto",background:"white",padding:20,borderRadius:20};
+/* UI */
 
-const nav={
-  display:"flex",
-  justifyContent:"space-between",
-  marginBottom:10
+const bg={
+  minHeight:"100vh",
+  background:"linear-gradient(135deg,#dbeafe,#f0fdf4)",
+  padding:20
 };
 
-const input={width:"100%",height:40,marginBottom:10};
-const textarea={width:"100%",height:80};
+const card={
+  maxWidth:500,
+  margin:"auto",
+  background:"white",
+  padding:20,
+  borderRadius:20,
+  boxShadow:"0 10px 20px rgba(0,0,0,0.1)"
+};
+
+const title={textAlign:"center",marginBottom:10};
+
+const nav={display:"flex",justifyContent:"space-between",marginBottom:10};
+
+const navBtn={padding:"8px 12px"};
+
+const label={fontWeight:"bold",marginTop:10};
+
+const input={width:"100%",height:45,marginBottom:10,borderRadius:10,padding:10};
+
+const textarea={width:"100%",height:80,borderRadius:10,padding:10};
+
 const row={display:"flex",gap:10};
 
-const saveBtn={width:"100%",height:50,background:"#3b82f6",color:"white"};
+const addBtn={width:80};
+
+const saveBtn={
+  width:"100%",
+  height:50,
+  marginTop:10,
+  background:"#3b82f6",
+  color:"white",
+  borderRadius:10
+};
 
 const stateBtn=(c,v)=>({
   flex:1,
-  height:50,
-  fontSize:20,
-  background:c===v?(v==="○"?"#3b82f6":v==="△"?"#facc15":"#ef4444"):"#ddd"
+  height:60,
+  fontSize:22,
+  borderRadius:10,
+  color:"white",
+  background:
+    c===v
+      ? v==="○"
+        ? "#3b82f6"
+        : v==="△"
+        ? "#facc15"
+        : "#ef4444"
+      : "#ddd"
 });
