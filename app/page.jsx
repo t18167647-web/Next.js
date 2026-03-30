@@ -1,36 +1,14 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
-import { db } from "../../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
-
-export default function TablePage() {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "pitch_data"));
-      const list = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setData(list);
-    };
-
-    fetchData();
-  }, []);
-
+export default function Home() {
   return (
     <div style={{ padding: 20 }}>
-      <h1>一覧</h1>
+      <h1>トップ</h1>
 
-      {data.map((item) => (
-        <div key={item.id}>
-          {item.name} : {item.score}
-        </div>
-      ))}
+      <a href="/input">入力ページへ</a>
+      <br />
+      <a href="/table">一覧ページへ</a>
     </div>
   );
 }
-
 
